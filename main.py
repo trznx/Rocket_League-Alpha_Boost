@@ -9,6 +9,7 @@ import cv2
 import numpy as np
 import json
 import sys
+import ctypes
 
 # --- AYARLAR (Buradan Kontrol Et) ---
 DOSYA_ADI = "AlphaBoostSound.wav"
@@ -66,6 +67,15 @@ is_mouse_down = False
 is_boost_empty = False
 loop_triggered = False
 
+def is_rl_active():
+    hwnd = ctypes.windll.user32.GetForegroundWindow()
+    length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+    buf = ctypes.create_unicode_buffer(length + 1)
+    ctypes.windll.user32.GetWindowTextW(hwnd, buf, length + 1)
+    title = buf.value
+    # Bakkesmod veya normal oyun başlığında Rocket League geçer
+    return "Rocket League" in title or "RocketLeague" in title
+
 def play_sound_from_start():
     global loop_triggered
     loop_triggered = False
@@ -84,8 +94,8 @@ def monitor_logic():
             # Görüntü alma ve işleme
             img = np.array(sct.grab(BOOST_REGION))
             gray = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
-            # Beyaz/Sarı metni ön plana çıkarmak için Thresholding
-            _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+            # DİKKAT: kalibrasyon.py ile aynı eşik değerini (100) kullanmalıyız!
+            _, thresh = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
             
             # Şablon eşleştirme
             res = cv2.matchTemplate(thresh, template_0, cv2.TM_CCOEFF_NORMED)
@@ -117,6 +127,10 @@ def monitor_logic():
 def on_click(x, y, button, pressed):
     global is_mouse_down, is_boost_empty
     if button == mouse.Button.left:
+        # Sadece oyun penceresi aktifken çalışsın (Masaüstünde ses çıkmasını engeller)
+        if not is_rl_active():
+            return
+            
         is_mouse_down = pressed
         if pressed:
             # Tıkladığımızda boost'umuz varsa sesi baştan çal
