@@ -16,6 +16,7 @@ import os
 import json
 import ctypes
 from tkinter import messagebox
+from audio_engine import AlphaBoostAudioEngine
 import kalibrasyon
 import tkinter as tk
 from tkinter import ttk
@@ -88,42 +89,8 @@ if np.mean(template_0) == 0:
     print("HATA: template_0.png tamamen SİYAH (boş)! Kalibrasyon sırasında '0' rakamı düzgün alınamamış.")
     sys.exit(1)
 
-# --- SİSTEM BAŞLATMA ---
-pygame.mixer.pre_init(44100, -16, 2, 256) # En düşük gecikme
-pygame.init()
-
-# 8 Kanallı Çoklu Ses Sistemi (Feathering için)
-pygame.mixer.set_num_channels(8)
-
-# Sesleri ve Kanalı Yükle
-def get_path(filename):
-    return os.path.join("assets", "sounds", filename)
-
-try:
-    s_level1 = pygame.mixer.Sound(get_path("full_boost.wav"))
-    s_level2 = pygame.mixer.Sound(get_path("level_2.wav"))
-    s_level3 = pygame.mixer.Sound(get_path("level_3.wav"))
-    s_level4 = pygame.mixer.Sound(get_path("level_4.wav"))
-    s_level5 = pygame.mixer.Sound(get_path("level_5.wav"))
-    s_level6 = pygame.mixer.Sound(get_path("level_6.wav"))
-    s_level7 = pygame.mixer.Sound(get_path("level_7.wav"))
-    s_level8 = pygame.mixer.Sound(get_path("level_8.wav"))
-except FileNotFoundError:
-    print("HATA: Ses dosyaları 'assets/sounds' klasöründe bulunamadı!")
-    sys.exit(1)
-
-# Ses Seviyelerini Uygula
-def update_volumes():
-    s_level1.set_volume(SES_SEVIYESI)
-    s_level2.set_volume(SES_SEVIYESI)
-    s_level3.set_volume(SES_SEVIYESI)
-    s_level4.set_volume(SES_SEVIYESI)
-    s_level5.set_volume(SES_SEVIYESI)
-    s_level6.set_volume(SES_SEVIYESI)
-    s_level7.set_volume(SES_SEVIYESI)
-    s_level8.set_volume(SES_SEVIYESI)
-
-update_volumes()
+# --- SES MOTORU BAŞLATMA ---
+audio = AlphaBoostAudioEngine()
 
 # --- FİZİK VE DURUM DEĞİŞKENLERİ ---
 is_mouse_down = False
@@ -132,7 +99,6 @@ MAX_SPEED = 2200.0
 ACCELERATION = 1200.0
 DECELERATION = 800.0
 mouse_down_time = 0.0
-active_channels = []
 
 def is_rl_active():
     hwnd = ctypes.windll.user32.GetForegroundWindow()
@@ -141,34 +107,6 @@ def is_rl_active():
     ctypes.windll.user32.GetWindowTextW(hwnd, buf, length + 1)
     title = buf.value
     return "Rocket League" in title or "RocketLeague" in title
-
-def play_sound_from_start():
-    ch = pygame.mixer.find_channel()
-    if ch:
-        # Kademeli Hız Kontrolü (8 Adım - Ultra Yumuşak Geçiş)
-        if estimated_speed < 275:
-            ch.play(s_level1)
-        elif estimated_speed < 550:
-            ch.play(s_level2)
-        elif estimated_speed < 825:
-            ch.play(s_level3)
-        elif estimated_speed < 1100:
-            ch.play(s_level4)
-        elif estimated_speed < 1375:
-            ch.play(s_level5)
-        elif estimated_speed < 1650:
-            ch.play(s_level6)
-        elif estimated_speed < 1925:
-            ch.play(s_level7)
-        else:
-            ch.play(s_level8)
-        active_channels.append(ch)
-
-def stop_sound():
-    for ch in active_channels:
-        if ch.get_busy():
-            ch.fadeout(150)
-    active_channels.clear()
 
 def monitor_logic():
     global is_mouse_down, mouse_down_time, FREEPLAY_MODE, estimated_speed, is_sound_playing
@@ -239,10 +177,12 @@ def monitor_logic():
             
             # Sesi Yönet
             if should_play and not is_sound_playing:
-                play_sound_from_start()
+                audio.trigger_start()
+                audio.play_loop(estimated_speed)
                 is_sound_playing = True
             elif not should_play and is_sound_playing:
-                stop_sound()
+                audio.stop_loop()
+                audio.trigger_end()
                 is_sound_playing = False
                 
             # --- FİZİK VE DİNAMİK SES YÖNETİMİ ---
@@ -316,7 +256,7 @@ def on_volume_change(val):
     SES_SEVIYESI = float(val)
     user_settings["volume"] = SES_SEVIYESI
     save_settings()
-    update_volumes()
+    audio.set_volume(SES_SEVIYESI)
     lbl_volume.config(text=f"Volume Level: {int(SES_SEVIYESI*100)}%")
 
 # Dinleyici Threadleri Başlat
