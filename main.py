@@ -11,6 +11,22 @@ import json
 import sys
 import ctypes
 
+class POINT(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
+
+class CURSORINFO(ctypes.Structure):
+    _fields_ = [("cbSize", ctypes.c_uint),
+                ("flags", ctypes.c_uint),
+                ("hCursor", ctypes.c_void_p),
+                ("ptScreenPos", POINT)]
+
+def is_cursor_visible():
+    info = CURSORINFO()
+    info.cbSize = ctypes.sizeof(CURSORINFO)
+    ctypes.windll.user32.GetCursorInfo(ctypes.byref(info))
+    # flags == 1 means cursor is showing
+    return info.flags == 1
+
 # --- AYARLAR (Buradan Kontrol Et) ---
 DOSYA_ADI = "AlphaBoostSound.wav"
 INTRO_BASLANGIC = 0.075 
@@ -103,11 +119,14 @@ def monitor_logic():
             gray = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
             _, thresh = cv2.threshold(gray, THRESHOLD_VALUE, 255, cv2.THRESH_BINARY)
             
-            # 1. KONTROL: Rakam Değişimi (Frozen Boost tespiti)
+            # 1. KONTROL: Rakam Değişimi (Frozen Boost ve Gol Tekrarı tespiti)
             if last_thresh_img is not None:
                 diff = cv2.absdiff(thresh, last_thresh_img)
-                # Ufak piksel oynamalarını yoksaymak için eşik 5 piksel
-                if cv2.countNonZero(diff) > 5:
+                diff_count = cv2.countNonZero(diff)
+                
+                # Eğer değişim çok küçükse (titreme) veya çok büyükse (Gol tekrarında kameranın dönmesi)
+                # Sadece mantıklı font değişimlerini (5 ile 800 piksel arası) kabul et.
+                if 5 < diff_count < 800:
                     last_change_time = current_time
             
             last_thresh_img = thresh.copy()
@@ -132,7 +151,10 @@ def monitor_logic():
             
             should_play = False
             
-            if is_mouse_down and not currently_empty:
+            # Eğer fare görünür durumdaysa (ESC menüsü, Ayarlar, Ana menü), sesi tamamen yasakla!
+            if is_cursor_visible():
+                should_play = False
+            elif is_mouse_down and not currently_empty:
                 if is_frozen and not in_grace_period:
                     # Rakam donmuş ve tolerans süresi bitmiş -> Geri sayımdasın, sesi kes.
                     should_play = False
