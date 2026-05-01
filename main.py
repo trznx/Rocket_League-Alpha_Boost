@@ -190,6 +190,7 @@ def monitor_logic():
                 estimated_speed += ACCELERATION * dt
                 if estimated_speed > MAX_SPEED:
                     estimated_speed = MAX_SPEED
+                audio.update_speed(estimated_speed)
             else:
                 estimated_speed -= DECELERATION * dt
                 if estimated_speed < 0:
