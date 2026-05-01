@@ -30,8 +30,8 @@ def is_cursor_visible():
 # --- AYARLAR (Buradan Kontrol Et) ---
 DOSYA_ADI = "AlphaBoostSound.wav"
 INTRO_BASLANGIC = 0.075
-LOOP_NOKTASI = 1.0       # Uzun başlangıç (Döngüye hemen girmemesi için wind-up)
-LOOP_BITIS = 1.4         # Tam ortanın biraz altı (Kusursuz sabit loop aralığı)
+LOOP_NOKTASI = 0.597     # Senin mükemmel aralığının başlangıcı
+LOOP_BITIS = 0.971       # Rüzgar sesinin asla girmediği bitiş noktası
 SES_SEVIYESI = 0.3
 
 # --- KALİBRASYON VERİLERİNİ YÜKLE ---
