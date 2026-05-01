@@ -15,7 +15,6 @@ import sys
 import os
 import json
 import ctypes
-import wave
 from tkinter import messagebox
 import kalibrasyon
 import tkinter as tk
@@ -89,78 +88,7 @@ if np.mean(template_0) == 0:
     print("HATA: template_0.png tamamen SİYAH (boş)! Kalibrasyon sırasında '0' rakamı düzgün alınamamış.")
     sys.exit(1)
 
-# --- KUSURSUZ CROSSFADE SES ÜRETİCİSİ ---
-def crossfade_audio(clip1, clip2, crossfade_samples):
-    if crossfade_samples == 0:
-        return np.vstack((clip1, clip2))
-    
-    fade_out = np.linspace(1.0, 0.0, crossfade_samples).reshape(-1, 1)
-    fade_in = np.linspace(0.0, 1.0, crossfade_samples).reshape(-1, 1)
-    
-    overlap1 = clip1[-crossfade_samples:] * fade_out
-    overlap2 = clip2[:crossfade_samples] * fade_in
-    mixed = overlap1 + overlap2
-    
-    return np.vstack((
-        clip1[:-crossfade_samples],
-        mixed,
-        clip2[crossfade_samples:]
-    ))
-
-def sesleri_hazirla():
-    if os.path.exists("full_boost.wav"):
-        return True
-    print("Orijinal Alpha Boost Sesi (Crossfade ile Pürüzsüzleştirilerek) Hazırlanıyor...")
-    try:
-        with wave.open(DOSYA_ADI, 'rb') as w:
-            sr = w.getframerate()
-            n_channels = w.getnchannels()
-            sampwidth = w.getsampwidth()
-            frames = w.readframes(w.getnframes())
-            
-        dtype = np.int16 if sampwidth == 2 else np.int32
-        audio = np.frombuffer(frames, dtype=dtype)
-        if n_channels > 1:
-            audio = audio.reshape(-1, n_channels)
-        else:
-            audio = audio.reshape(-1, 1)
-            
-        intro_start = int(INTRO_BASLANGIC * sr)
-        loop_start = int(LOOP_NOKTASI * sr)
-        loop_end = int(LOOP_BITIS * sr)
-        
-        intro = audio[intro_start:loop_start]
-        loop_piece = audio[loop_start:loop_end]
-        
-        crossfade_samples = int(0.03 * sr) # 30ms pürüzsüz geçiş
-        
-        # Helikopter vızıltısını önlemek için pürüzsüz (crossfade) loop oluştur
-        loop_10s = loop_piece.copy()
-        # Kullanıcının isteği: 1 dakikalık ses kaydı haline getir (yaklaşık 120 kez birleştir)
-        for _ in range(120):
-            loop_10s = crossfade_audio(loop_10s, loop_piece, crossfade_samples)
-            
-        full_audio = crossfade_audio(intro, loop_10s, crossfade_samples)
-        
-        with wave.open("full_boost.wav", 'wb') as w:
-            w.setnchannels(n_channels)
-            w.setsampwidth(sampwidth)
-            w.setframerate(sr)
-            w.writeframes(full_audio.astype(dtype).tobytes())
-            
-        with wave.open("loop_part.wav", 'wb') as w:
-            w.setnchannels(n_channels)
-            w.setsampwidth(sampwidth)
-            w.setframerate(sr)
-            w.writeframes(loop_10s.astype(dtype).tobytes())
-            
-        return True
-    except Exception as e:
-        print(f"Hata: {e}")
-        return False
-
 # --- SİSTEM BAŞLATMA ---
-sesleri_hazirla()
 pygame.mixer.pre_init(44100, -16, 2, 256) # En düşük gecikme
 pygame.init()
 
