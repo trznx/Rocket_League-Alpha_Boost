@@ -344,7 +344,7 @@ def on_press(key):
             user_settings["freeplay_mode"] = FREEPLAY_MODE
             save_settings()
             try:
-                btn_freeplay.config(text=f"Freeplay Modu: {'AÇIK' if FREEPLAY_MODE else 'KAPALI'}")
+                btn_freeplay.config(text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}")
             except:
                 pass
     except AttributeError:
@@ -368,14 +368,14 @@ def toggle_freeplay():
     FREEPLAY_MODE = not FREEPLAY_MODE
     user_settings["freeplay_mode"] = FREEPLAY_MODE
     save_settings()
-    btn_freeplay.config(text=f"Freeplay Modu: {'AÇIK' if FREEPLAY_MODE else 'KAPALI'}")
+    btn_freeplay.config(text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}")
 
 def toggle_active():
     global IS_ACTIVE
     IS_ACTIVE = not IS_ACTIVE
     user_settings["is_active"] = IS_ACTIVE
     save_settings()
-    btn_active.config(text=f"Motor Durumu: {'ÇALIŞIYOR' if IS_ACTIVE else 'DURDURULDU'}")
+    btn_active.config(text=f"Alpha Boost: {'ENABLED' if IS_ACTIVE else 'DISABLED'}")
 
 def on_volume_change(val):
     global SES_SEVIYESI
@@ -383,7 +383,7 @@ def on_volume_change(val):
     user_settings["volume"] = SES_SEVIYESI
     save_settings()
     update_volumes()
-    lbl_volume.config(text=f"Ses Seviyesi: {int(SES_SEVIYESI*100)}%")
+    lbl_volume.config(text=f"Volume Level: {int(SES_SEVIYESI*100)}%")
 
 # Dinleyici Threadleri Başlat
 mouse_listener = mouse.Listener(on_click=on_click)
@@ -398,7 +398,7 @@ monitor_thread.start()
 
 # --- TKINTER ARAYÜZ (GUI) ---
 root = tk.Tk()
-root.title("Alpha Boost Motoru")
+root.title("Alpha Boost Engine")
 root.geometry("350x250")
 root.resizable(False, False)
 root.attributes("-topmost", True) # Her zaman üstte kalsın
@@ -409,15 +409,15 @@ style.theme_use('clam')
 frame = ttk.Frame(root, padding="20")
 frame.pack(fill=tk.BOTH, expand=True)
 
-ttk.Label(frame, text="🚀 Alpha Boost Control", font=("Arial", 14, "bold")).pack(pady=10)
+ttk.Label(frame, text="🚀 Alpha Boost Engine", font=("Arial", 14, "bold")).pack(pady=10)
 
-btn_active = ttk.Button(frame, text=f"Motor Durumu: {'ÇALIŞIYOR' if IS_ACTIVE else 'DURDURULDU'}", command=toggle_active)
+btn_active = ttk.Button(frame, text=f"Alpha Boost: {'ENABLED' if IS_ACTIVE else 'DISABLED'}", command=toggle_active)
 btn_active.pack(fill=tk.X, pady=5)
 
-btn_freeplay = ttk.Button(frame, text=f"Freeplay Modu: {'AÇIK' if FREEPLAY_MODE else 'KAPALI'}", command=toggle_freeplay)
+btn_freeplay = ttk.Button(frame, text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}", command=toggle_freeplay)
 btn_freeplay.pack(fill=tk.X, pady=5)
 
-lbl_volume = ttk.Label(frame, text=f"Ses Seviyesi: {int(SES_SEVIYESI*100)}%")
+lbl_volume = ttk.Label(frame, text=f"Volume Level: {int(SES_SEVIYESI*100)}%")
 lbl_volume.pack(pady=(10,0))
 
 slider_volume = ttk.Scale(frame, from_=0.0, to=1.0, orient='horizontal', command=on_volume_change)

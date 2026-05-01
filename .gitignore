@@ -18,3 +18,9 @@ env/
 # MacOS / Windows sistem dosyalarÄ±
 .DS_Store
 Thumbs.db
+
+# Development/Test klasörleri (GitHub'a gitmeyecek)
+_archive/
+scratch/
+test_sounds/
+tools/
