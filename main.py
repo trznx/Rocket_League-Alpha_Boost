@@ -136,7 +136,7 @@ def monitor_logic():
                 
                 # Eğer değişim çok küçükse (titreme) veya çok büyükse (Gol tekrarında kameranın dönmesi)
                 # Sadece mantıklı font değişimlerini (5 ile 800 piksel arası) kabul et.
-                if 5 < diff_count < 800:
+                if 25 < diff_count < 800:
                     last_change_time = current_time
             
             last_thresh_img = thresh.copy()
