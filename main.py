@@ -4,15 +4,34 @@ from moviepy import AudioFileClip
 import os
 import time
 import threading
+import mss
+import cv2
+import numpy as np
+import json
+import sys
 
 # --- AYARLAR (Buradan Kontrol Et) ---
 DOSYA_ADI = "AlphaBoostSound.wav"
 INTRO_BASLANGIC = 0.075 
 LOOP_NOKTASI = 0.597    
-
-# SES SEVİYESİ: 0.0 (Sessiz) ile 1.0 (Tam Ses) arası. 
-# Oyun sesiyle uyuşması için 0.4 veya 0.5 idealdir.
 SES_SEVIYESI = 0.38
+
+# --- KALİBRASYON VERİLERİNİ YÜKLE ---
+if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
+    print("HATA: config.json veya template_0.png bulunamadi!")
+    print("Lütfen önce 'kalibrasyon.py' dosyasini çalistirin.")
+    sys.exit(1)
+
+with open("config.json", "r") as f:
+    BOOST_REGION = json.load(f)
+
+template_0 = cv2.imread("template_0.png", 0) # Grayscale olarak oku
+
+if np.mean(template_0) == 0:
+    print("HATA: template_0.png tamamen SİYAH (boş)! Kalibrasyon sırasında '0' rakamı düzgün alınamamış veya eşik değeri çok yüksek.")
+    print("Lütfen kalibrasyon.py dosyasını tekrar çalıştırın.")
+    sys.exit(1)
+
 
 # --- SES PARÇALAMA ---
 def sesleri_hazirla():
@@ -42,43 +61,79 @@ s_loop = pygame.mixer.Sound("loop_part.wav")
 s_intro.set_volume(SES_SEVIYESI)
 s_loop.set_volume(SES_SEVIYESI)
 
-is_pressed = False
+# --- DURUM DEĞİŞKENLERİ ---
+is_mouse_down = False
+is_boost_empty = False
 loop_triggered = False
 
+def play_sound_from_start():
+    global loop_triggered
+    loop_triggered = False
+    channel.stop()
+    channel.play(s_intro)
+
+def stop_sound():
+    channel.fadeout(50) # 50ms ile daha keskin ama doğal kesilme
+
 def monitor_logic():
-    """Arka planda sadece loop geçişini yönetir"""
-    global is_pressed, loop_triggered
-    while True:
-        # Eğer basılıysa ve intro bittiyse (kanal boşaldıysa) loop'u başlat
-        if is_pressed and not channel.get_busy() and not loop_triggered:
-            channel.play(s_loop, loops=-1)
-            loop_triggered = True
-        time.sleep(0.005)
+    """Arka planda ekranı tarar ve loop/boost geçişlerini yönetir"""
+    global is_mouse_down, is_boost_empty, loop_triggered
+    
+    with mss.mss() as sct:
+        while True:
+            # Görüntü alma ve işleme
+            img = np.array(sct.grab(BOOST_REGION))
+            gray = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+            # Beyaz/Sarı metni ön plana çıkarmak için Thresholding
+            _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+            
+            # Şablon eşleştirme
+            res = cv2.matchTemplate(thresh, template_0, cv2.TM_CCOEFF_NORMED)
+            match_val = np.max(res)
+            
+            # Eğer eşleşme 0.80'den büyükse, ekranda net bir şekilde 0 yazıyordur.
+            currently_empty = (match_val > 0.80)
+            
+            if currently_empty != is_boost_empty:
+                is_boost_empty = currently_empty
+                
+                # Boost MİKTARI DEĞİŞTİ (Sıfırlandı veya Pad Alındı)
+                if is_boost_empty:
+                    # Boost 0 oldu, sesi hemen kes (mouse basılı olsa bile)
+                    stop_sound()
+                else:
+                    # Boost 0'dan büyük bir değere çıktı (Örn: 12'lik Pad alındı)
+                    # SİZİN İSTEĞİNİZ: Eğer sol tıka hala basılıyorsa, ses en baştan başlasın!
+                    if is_mouse_down:
+                        play_sound_from_start()
+            
+            # Normal Loop mantığı: Intro bitince loop'a geçiş (Boost varsa ve fare basılıysa)
+            if is_mouse_down and not is_boost_empty and not channel.get_busy() and not loop_triggered:
+                channel.play(s_loop, loops=-1)
+                loop_triggered = True
+                
+            time.sleep(0.005) # Saniyede ~200 kez kontrol
 
 def on_click(x, y, button, pressed):
-    global is_pressed, loop_triggered
+    global is_mouse_down, is_boost_empty
     if button == mouse.Button.left:
+        is_mouse_down = pressed
         if pressed:
-            # ÖNEMLİ: Her basışta kanalı DURDUR ve her şeyi sıfırla. 
-            # Bu, sesin gelmeme veya takılı kalma sorununu çözer.
-            is_pressed = True
-            loop_triggered = False
-            channel.stop() 
-            channel.play(s_intro)
+            # Tıkladığımızda boost'umuz varsa sesi baştan çal
+            if not is_boost_empty:
+                play_sound_from_start()
         else:
-            # Parmağını çektiğin an her şeyi kes
-            is_pressed = False
-            loop_triggered = False
-            channel.fadeout(100) # 100ms sönme ile keskinliği yumuşat
+            # Parmağımızı çektiğimizde sesi kes
+            stop_sound()
 
 # Takip thread'ini başlat
 threading.Thread(target=monitor_logic, daemon=True).start()
 
-print("\n" + "="*35)
-print("  ALPHA BOOST SİSTEMİ AKTİF")
+print("\n" + "="*45)
+print("  ALPHA BOOST SİSTEMİ (CV EDITION) AKTİF")
 print(f"  Ses Seviyesi: %{int(SES_SEVIYESI*100)}")
-print("  Bug-Fix Mode: ON")
-print("="*35)
+print("  Gecikmesiz Görüntü İşleme: AÇIK")
+print("="*45)
 
 with mouse.Listener(on_click=on_click) as listener:
-    listener.join()
+    listener.join()
