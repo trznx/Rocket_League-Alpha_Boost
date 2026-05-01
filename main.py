@@ -30,9 +30,9 @@ def is_cursor_visible():
 # --- AYARLAR (Buradan Kontrol Et) ---
 DOSYA_ADI = "AlphaBoostSound.wav"
 INTRO_BASLANGIC = 0.075
-LOOP_NOKTASI = 0.597
-LOOP_BITIS = 0.971
-SES_SEVIYESI = 0.29
+LOOP_NOKTASI = 1.0       # Uzun başlangıç (Döngüye hemen girmemesi için wind-up)
+LOOP_BITIS = 1.4         # Tam ortanın biraz altı (Kusursuz sabit loop aralığı)
+SES_SEVIYESI = 0.3
 
 # --- KALİBRASYON VERİLERİNİ YÜKLE ---
 if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
@@ -115,6 +115,12 @@ def sesleri_hazirla():
             w.setframerate(sr)
             w.writeframes(full_audio.astype(dtype).tobytes())
             
+        with wave.open("loop_part.wav", 'wb') as w:
+            w.setnchannels(n_channels)
+            w.setsampwidth(sampwidth)
+            w.setframerate(sr)
+            w.writeframes(loop_10s.astype(dtype).tobytes())
+            
         return True
     except Exception as e:
         print(f"Hata: {e}")
@@ -130,13 +136,16 @@ pygame.mixer.set_num_channels(8)
 
 # Sesleri ve Kanalı Yükle
 s_full = pygame.mixer.Sound("full_boost.wav")
+s_loop = pygame.mixer.Sound("loop_part.wav")
 
 # Ses Seviyelerini Uygula
 s_full.set_volume(SES_SEVIYESI)
+s_loop.set_volume(SES_SEVIYESI)
 
 # --- DURUM DEĞİŞKENLERİ ---
 is_mouse_down = False
 mouse_down_time = 0.0
+last_sound_stop_time = 0.0
 FREEPLAY_MODE = False
 active_channels = []
 
@@ -149,14 +158,12 @@ def is_rl_active():
     return "Rocket League" in title or "RocketLeague" in title
 
 def play_sound_from_start():
-    # Boş bir kanal bul ve sesi oynat
     ch = pygame.mixer.find_channel()
     if ch:
         ch.play(s_full)
         active_channels.append(ch)
 
 def stop_sound():
-    # Tüm aktif kanalları çok yumuşak bir fadeout ile kapat (Alpha Boost yankısı)
     for ch in active_channels:
         if ch.get_busy():
             ch.fadeout(200) # Gerçek yankı için 200ms
