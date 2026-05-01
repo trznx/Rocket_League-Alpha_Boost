@@ -136,16 +136,19 @@ pygame.mixer.set_num_channels(8)
 
 # Sesleri ve Kanalı Yükle
 s_full = pygame.mixer.Sound("full_boost.wav")
-s_loop = pygame.mixer.Sound("loop_part.wav")
+s_high = pygame.mixer.Sound("full_boost_high.wav")
 
 # Ses Seviyelerini Uygula
 s_full.set_volume(SES_SEVIYESI)
-s_loop.set_volume(SES_SEVIYESI)
+s_high.set_volume(SES_SEVIYESI)
 
-# --- DURUM DEĞİŞKENLERİ ---
+# --- FİZİK VE DURUM DEĞİŞKENLERİ ---
 is_mouse_down = False
+estimated_speed = 0.0
+MAX_SPEED = 2200.0
+ACCELERATION = 1200.0
+DECELERATION = 800.0
 mouse_down_time = 0.0
-last_sound_stop_time = 0.0
 FREEPLAY_MODE = False
 active_channels = []
 
@@ -160,25 +163,32 @@ def is_rl_active():
 def play_sound_from_start():
     ch = pygame.mixer.find_channel()
     if ch:
-        ch.play(s_full)
+        # Hız kontrolü: Eğer yeterince hızlıysak yüksek perdeli dosyayı çal!
+        if estimated_speed >= 1500:
+            ch.play(s_high)
+        else:
+            ch.play(s_full)
         active_channels.append(ch)
 
 def stop_sound():
     for ch in active_channels:
         if ch.get_busy():
-            ch.fadeout(200) # Gerçek yankı için 200ms
+            ch.fadeout(150)
     active_channels.clear()
 
 def monitor_logic():
-    global is_mouse_down, mouse_down_time, FREEPLAY_MODE
+    global is_mouse_down, mouse_down_time, FREEPLAY_MODE, estimated_speed, is_sound_playing
     
     last_thresh_img = None
     last_change_time = time.time()
+    last_update_time = time.time()
     is_sound_playing = False
 
     with mss.mss() as sct:
         while True:
             current_time = time.time()
+            dt = current_time - last_update_time
+            last_update_time = current_time
             
             # Görüntü alma ve işleme
             img = np.array(sct.grab(BOOST_REGION))
@@ -237,6 +247,16 @@ def monitor_logic():
                 stop_sound()
                 is_sound_playing = False
                 
+            # --- FİZİK VE DİNAMİK SES YÖNETİMİ ---
+            if should_play:
+                estimated_speed += ACCELERATION * dt
+                if estimated_speed > MAX_SPEED:
+                    estimated_speed = MAX_SPEED
+            else:
+                estimated_speed -= DECELERATION * dt
+                if estimated_speed < 0:
+                    estimated_speed = 0
+
             time.sleep(0.005) # Saniyede ~200 kez kontrol
 
 def on_click(x, y, button, pressed):
