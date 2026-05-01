@@ -5,11 +5,19 @@ import time
 import threading
 import mss
 import cv2
+import mss
 import numpy as np
-import json
+import time
+import pygame
+import threading
+from pynput import mouse, keyboard
 import sys
+import os
+import json
 import ctypes
 import wave
+import tkinter as tk
+from tkinter import ttk
 
 class POINT(ctypes.Structure):
     _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
@@ -27,12 +35,35 @@ def is_cursor_visible():
     # flags == 1 means cursor is showing
     return info.flags == 1
 
-# --- AYARLAR (Buradan Kontrol Et) ---
-DOSYA_ADI = "AlphaBoostSound.wav"
-INTRO_BASLANGIC = 0.075
-LOOP_NOKTASI = 0.597     # Senin mükemmel aralığının başlangıcı
-LOOP_BITIS = 0.971       # Rüzgar sesinin asla girmediği bitiş noktası
-SES_SEVIYESI = 0.3
+# --- AYARLAR VE KAYIT ---
+SETTINGS_FILE = "user_settings.json"
+
+default_settings = {
+    "volume": 0.3,
+    "freeplay_mode": False,
+    "is_active": True
+}
+
+if os.path.exists(SETTINGS_FILE):
+    with open(SETTINGS_FILE, "r") as f:
+        try:
+            user_settings = json.load(f)
+            # Eksik anahtarları tamamla
+            for k, v in default_settings.items():
+                if k not in user_settings:
+                    user_settings[k] = v
+        except:
+            user_settings = default_settings.copy()
+else:
+    user_settings = default_settings.copy()
+
+def save_settings():
+    with open(SETTINGS_FILE, "w") as f:
+        json.dump(user_settings, f, indent=4)
+
+SES_SEVIYESI = user_settings["volume"]
+FREEPLAY_MODE = user_settings["freeplay_mode"]
+IS_ACTIVE = user_settings["is_active"]
 
 # --- KALİBRASYON VERİLERİNİ YÜKLE ---
 if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
@@ -135,24 +166,34 @@ pygame.init()
 pygame.mixer.set_num_channels(8)
 
 # Sesleri ve Kanalı Yükle
-s_level1 = pygame.mixer.Sound("full_boost.wav")
-s_level2 = pygame.mixer.Sound("level_2.wav")
-s_level3 = pygame.mixer.Sound("level_3.wav")
-s_level4 = pygame.mixer.Sound("level_4.wav")
-s_level5 = pygame.mixer.Sound("level_5.wav")
-s_level6 = pygame.mixer.Sound("level_6.wav")
-s_level7 = pygame.mixer.Sound("level_7.wav")
-s_level8 = pygame.mixer.Sound("level_8.wav")
+def get_path(filename):
+    return os.path.join("assets", "sounds", filename)
+
+try:
+    s_level1 = pygame.mixer.Sound(get_path("full_boost.wav"))
+    s_level2 = pygame.mixer.Sound(get_path("level_2.wav"))
+    s_level3 = pygame.mixer.Sound(get_path("level_3.wav"))
+    s_level4 = pygame.mixer.Sound(get_path("level_4.wav"))
+    s_level5 = pygame.mixer.Sound(get_path("level_5.wav"))
+    s_level6 = pygame.mixer.Sound(get_path("level_6.wav"))
+    s_level7 = pygame.mixer.Sound(get_path("level_7.wav"))
+    s_level8 = pygame.mixer.Sound(get_path("level_8.wav"))
+except FileNotFoundError:
+    print("HATA: Ses dosyaları 'assets/sounds' klasöründe bulunamadı!")
+    sys.exit(1)
 
 # Ses Seviyelerini Uygula
-s_level1.set_volume(SES_SEVIYESI)
-s_level2.set_volume(SES_SEVIYESI)
-s_level3.set_volume(SES_SEVIYESI)
-s_level4.set_volume(SES_SEVIYESI)
-s_level5.set_volume(SES_SEVIYESI)
-s_level6.set_volume(SES_SEVIYESI)
-s_level7.set_volume(SES_SEVIYESI)
-s_level8.set_volume(SES_SEVIYESI)
+def update_volumes():
+    s_level1.set_volume(SES_SEVIYESI)
+    s_level2.set_volume(SES_SEVIYESI)
+    s_level3.set_volume(SES_SEVIYESI)
+    s_level4.set_volume(SES_SEVIYESI)
+    s_level5.set_volume(SES_SEVIYESI)
+    s_level6.set_volume(SES_SEVIYESI)
+    s_level7.set_volume(SES_SEVIYESI)
+    s_level8.set_volume(SES_SEVIYESI)
+
+update_volumes()
 
 # --- FİZİK VE DURUM DEĞİŞKENLERİ ---
 is_mouse_down = False
@@ -161,7 +202,6 @@ MAX_SPEED = 2200.0
 ACCELERATION = 1200.0
 DECELERATION = 800.0
 mouse_down_time = 0.0
-FREEPLAY_MODE = False
 active_channels = []
 
 def is_rl_active():
@@ -255,7 +295,9 @@ def monitor_logic():
             should_play = False
             
             # Eğer fare görünür durumdaysa (ESC menüsü, Ayarlar, Ana menü), sesi tamamen yasakla!
-            if is_cursor_visible():
+            if not IS_ACTIVE:
+                should_play = False
+            elif is_cursor_visible():
                 should_play = False
             elif is_mouse_down and not currently_empty:
                 if is_frozen and not in_grace_period:
@@ -299,15 +341,12 @@ def on_press(key):
     try:
         if key == keyboard.Key.f4:
             FREEPLAY_MODE = not FREEPLAY_MODE
-            if FREEPLAY_MODE:
-                print("\n" + "*"*50)
-                print("  >>> SINIRSIZ BOOST MODU AKTİF (Freeplay için)")
-                print("  (Geri sayım ve donuk boost kontrolü devre dışı)")
-                print("*"*50 + "\n")
-            else:
-                print("\n" + "*"*50)
-                print("  >>> NORMAL MAÇ MODU AKTİF (Sınırsız Boost Kapalı)")
-                print("*"*50 + "\n")
+            user_settings["freeplay_mode"] = FREEPLAY_MODE
+            save_settings()
+            try:
+                btn_freeplay.config(text=f"Freeplay Modu: {'AÇIK' if FREEPLAY_MODE else 'KAPALI'}")
+            except:
+                pass
     except AttributeError:
         pass
 
@@ -323,11 +362,67 @@ print("  Sınırsız Boost (Freeplay) Modu için: F4 tuşuna basın!")
 print("="*50)
 
 # Mouse ve Keyboard'u aynı anda dinle
-mouse_listener = mouse.Listener(on_click=on_click)
-keyboard_listener = keyboard.Listener(on_press=on_press)
 
+def toggle_freeplay():
+    global FREEPLAY_MODE
+    FREEPLAY_MODE = not FREEPLAY_MODE
+    user_settings["freeplay_mode"] = FREEPLAY_MODE
+    save_settings()
+    btn_freeplay.config(text=f"Freeplay Modu: {'AÇIK' if FREEPLAY_MODE else 'KAPALI'}")
+
+def toggle_active():
+    global IS_ACTIVE
+    IS_ACTIVE = not IS_ACTIVE
+    user_settings["is_active"] = IS_ACTIVE
+    save_settings()
+    btn_active.config(text=f"Motor Durumu: {'ÇALIŞIYOR' if IS_ACTIVE else 'DURDURULDU'}")
+
+def on_volume_change(val):
+    global SES_SEVIYESI
+    SES_SEVIYESI = float(val)
+    user_settings["volume"] = SES_SEVIYESI
+    save_settings()
+    update_volumes()
+    lbl_volume.config(text=f"Ses Seviyesi: {int(SES_SEVIYESI*100)}%")
+
+# Dinleyici Threadleri Başlat
+mouse_listener = mouse.Listener(on_click=on_click)
 mouse_listener.start()
+
+keyboard_listener = keyboard.Listener(on_press=on_press)
 keyboard_listener.start()
 
-mouse_listener.join()
-keyboard_listener.join()
+monitor_thread = threading.Thread(target=monitor_logic)
+monitor_thread.daemon = True
+monitor_thread.start()
+
+# --- TKINTER ARAYÜZ (GUI) ---
+root = tk.Tk()
+root.title("Alpha Boost Motoru")
+root.geometry("350x250")
+root.resizable(False, False)
+root.attributes("-topmost", True) # Her zaman üstte kalsın
+
+style = ttk.Style()
+style.theme_use('clam')
+
+frame = ttk.Frame(root, padding="20")
+frame.pack(fill=tk.BOTH, expand=True)
+
+ttk.Label(frame, text="🚀 Alpha Boost Control", font=("Arial", 14, "bold")).pack(pady=10)
+
+btn_active = ttk.Button(frame, text=f"Motor Durumu: {'ÇALIŞIYOR' if IS_ACTIVE else 'DURDURULDU'}", command=toggle_active)
+btn_active.pack(fill=tk.X, pady=5)
+
+btn_freeplay = ttk.Button(frame, text=f"Freeplay Modu: {'AÇIK' if FREEPLAY_MODE else 'KAPALI'}", command=toggle_freeplay)
+btn_freeplay.pack(fill=tk.X, pady=5)
+
+lbl_volume = ttk.Label(frame, text=f"Ses Seviyesi: {int(SES_SEVIYESI*100)}%")
+lbl_volume.pack(pady=(10,0))
+
+slider_volume = ttk.Scale(frame, from_=0.0, to=1.0, orient='horizontal', command=on_volume_change)
+slider_volume.set(SES_SEVIYESI)
+slider_volume.pack(fill=tk.X, pady=5)
+
+root.mainloop()
+
