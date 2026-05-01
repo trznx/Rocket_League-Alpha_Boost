@@ -47,14 +47,27 @@ print(f"\nSeçilen Bölge: X:{x}, Y:{y}, Genişlik:{w}, Yükseklik:{h}")
 cropped = img[y:y+h, x:x+w]
 cv2.imwrite("debug_kesilmis_bolge.png", cropped) # Debug için kaydet
 
-# Gri tonlamaya çevir ve threshold (Eşik değerini 100'e düşürdük)
+# Dinamik Eşik Değeri Hesaplama (Kullanıcının ekran parlaklığına göre)
 gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
-_, thresh = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
+max_val = np.max(gray)
+mean_val = np.mean(gray)
+
+# Parlaklık çok düşükse hata verelim
+if max_val < 30:
+    print("HATA: Seçilen bölge kapkaranlık! Boost UI bulunamadı.")
+    exit()
+
+# Eşiği arka plan ile yazının arasında tam en ideal noktaya koyuyoruz
+dynamic_thresh = int(mean_val + (max_val - mean_val) * 0.7)
+
+print(f"Hesaplanan Dinamik Eşik Değeri: {dynamic_thresh} (Max: {max_val}, Ortalama: {int(mean_val)})")
+
+_, thresh = cv2.threshold(gray, dynamic_thresh, 255, cv2.THRESH_BINARY)
 
 cv2.imwrite("template_0.png", thresh)
 print("Şablon (template_0.png) başarıyla kaydedildi!")
 
-config = {"left": x, "top": y, "width": w, "height": h}
+config = {"left": x, "top": y, "width": w, "height": h, "threshold": dynamic_thresh}
 with open("config.json", "w") as f:
     json.dump(config, f)
 

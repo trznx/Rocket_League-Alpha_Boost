@@ -24,7 +24,14 @@ if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
     sys.exit(1)
 
 with open("config.json", "r") as f:
-    BOOST_REGION = json.load(f)
+    config_data = json.load(f)
+    BOOST_REGION = {
+        "left": config_data["left"],
+        "top": config_data["top"],
+        "width": config_data["width"],
+        "height": config_data["height"]
+    }
+    THRESHOLD_VALUE = config_data.get("threshold", 120)
 
 template_0 = cv2.imread("template_0.png", 0) # Grayscale olarak oku
 
@@ -94,15 +101,27 @@ def monitor_logic():
             # Görüntü alma ve işleme
             img = np.array(sct.grab(BOOST_REGION))
             gray = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
-            # DİKKAT: kalibrasyon.py ile aynı eşik değerini (100) kullanmalıyız!
-            _, thresh = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
+            # Dinamik Eşik Değeri kullanımı
+            _, thresh = cv2.threshold(gray, THRESHOLD_VALUE, 255, cv2.THRESH_BINARY)
             
-            # Şablon eşleştirme
-            res = cv2.matchTemplate(thresh, template_0, cv2.TM_CCOEFF_NORMED)
-            match_val = np.max(res)
+            # 1. KONTROL: Ekranda menüde miyiz?
+            # Eşiklenmiş görüntüdeki toplam beyaz piksel sayısını sayarız.
+            white_pixels = cv2.countNonZero(thresh)
             
-            # Eğer eşleşme 0.80'den büyükse, ekranda net bir şekilde 0 yazıyordur.
-            currently_empty = (match_val > 0.80)
+            # Eğer beyaz piksel sayısı 15'ten azsa, ekranda Boost UI'ı (sayılar) hiç yoktur. 
+            # Yani Ana Menüdeyiz, ESC Menüsündeyiz veya Gol kamerasındayız.
+            in_menu = (white_pixels < 15)
+            
+            if in_menu:
+                # Menüdeysek boost atamayız, bu yüzden sistemi 'Boost Yok' moduna alıyoruz.
+                currently_empty = True
+            else:
+                # 2. KONTROL: Şablon eşleştirme (Boost 0 mı?)
+                res = cv2.matchTemplate(thresh, template_0, cv2.TM_CCOEFF_NORMED)
+                match_val = np.max(res)
+                
+                # Eğer eşleşme 0.80'den büyükse, ekranda net bir şekilde 0 yazıyordur.
+                currently_empty = (match_val > 0.80)
             
             if currently_empty != is_boost_empty:
                 is_boost_empty = currently_empty
