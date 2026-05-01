@@ -32,7 +32,7 @@ DOSYA_ADI = "AlphaBoostSound.wav"
 INTRO_BASLANGIC = 0.075
 LOOP_NOKTASI = 0.597     # Senin mükemmel aralığının başlangıcı
 LOOP_BITIS = 0.971       # Rüzgar sesinin asla girmediği bitiş noktası
-SES_SEVIYESI = 0.3
+SES_SEVIYESI = 0.25
 
 # --- KALİBRASYON VERİLERİNİ YÜKLE ---
 if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
@@ -135,12 +135,16 @@ pygame.init()
 pygame.mixer.set_num_channels(8)
 
 # Sesleri ve Kanalı Yükle
-s_full = pygame.mixer.Sound("full_boost.wav")
-s_high = pygame.mixer.Sound("full_boost_high.wav")
+s_level1 = pygame.mixer.Sound("full_boost.wav")
+s_level2 = pygame.mixer.Sound("full_boost_mid1.wav")
+s_level3 = pygame.mixer.Sound("full_boost_mid2.wav")
+s_level4 = pygame.mixer.Sound("full_boost_high.wav")
 
 # Ses Seviyelerini Uygula
-s_full.set_volume(SES_SEVIYESI)
-s_high.set_volume(SES_SEVIYESI)
+s_level1.set_volume(SES_SEVIYESI)
+s_level2.set_volume(SES_SEVIYESI)
+s_level3.set_volume(SES_SEVIYESI)
+s_level4.set_volume(SES_SEVIYESI)
 
 # --- FİZİK VE DURUM DEĞİŞKENLERİ ---
 is_mouse_down = False
@@ -163,11 +167,15 @@ def is_rl_active():
 def play_sound_from_start():
     ch = pygame.mixer.find_channel()
     if ch:
-        # Hız kontrolü: Eğer yeterince hızlıysak yüksek perdeli dosyayı çal!
-        if estimated_speed >= 1500:
-            ch.play(s_high)
+        # Kademeli Hız Kontrolü (4 Adım - Çok Yumuşak Geçiş)
+        if estimated_speed < 550:
+            ch.play(s_level1)
+        elif estimated_speed < 1100:
+            ch.play(s_level2)
+        elif estimated_speed < 1650:
+            ch.play(s_level3)
         else:
-            ch.play(s_full)
+            ch.play(s_level4)
         active_channels.append(ch)
 
 def stop_sound():
