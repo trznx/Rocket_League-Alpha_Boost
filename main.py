@@ -1,6 +1,5 @@
 import pygame
 from pynput import mouse, keyboard
-from moviepy import AudioFileClip
 import os
 import time
 import threading
@@ -10,6 +9,7 @@ import numpy as np
 import json
 import sys
 import ctypes
+import wave
 
 class POINT(ctypes.Structure):
     _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
@@ -31,7 +31,7 @@ def is_cursor_visible():
 DOSYA_ADI = "AlphaBoostSound.wav"
 INTRO_BASLANGIC = 0.075 
 LOOP_NOKTASI = 0.597    
-SES_SEVIYESI = 0.38
+SES_SEVIYESI = 0.5
 
 # --- KALİBRASYON VERİLERİNİ YÜKLE ---
 if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
@@ -55,21 +55,63 @@ if np.mean(template_0) == 0:
     print("HATA: template_0.png tamamen SİYAH (boş)! Kalibrasyon sırasında '0' rakamı düzgün alınamamış.")
     sys.exit(1)
 
-# --- SES PARÇALAMA (YENİ SİSTEM: TEK PARÇA KESİNTİSİZ LOOP) ---
+# --- KUSURSUZ CROSSFADE SES ÜRETİCİSİ ---
+def crossfade_audio(clip1, clip2, crossfade_samples):
+    if crossfade_samples == 0:
+        return np.vstack((clip1, clip2))
+    
+    fade_out = np.linspace(1.0, 0.0, crossfade_samples).reshape(-1, 1)
+    fade_in = np.linspace(0.0, 1.0, crossfade_samples).reshape(-1, 1)
+    
+    overlap1 = clip1[-crossfade_samples:] * fade_out
+    overlap2 = clip2[:crossfade_samples] * fade_in
+    mixed = overlap1 + overlap2
+    
+    return np.vstack((
+        clip1[:-crossfade_samples],
+        mixed,
+        clip2[crossfade_samples:]
+    ))
+
 def sesleri_hazirla():
     if os.path.exists("full_boost.wav"):
         return True
-    print("Sesler hazırlanıyor (Kusursuz Alpha Boost Hissiyatı İçin)...")
+    print("Orijinal Alpha Boost Sesi (Crossfade ile Pürüzsüzleştirilerek) Hazırlanıyor...")
     try:
-        from moviepy import AudioFileClip, concatenate_audioclips
-        audio = AudioFileClip(DOSYA_ADI)
-        intro = audio.subclipped(INTRO_BASLANGIC, LOOP_NOKTASI)
-        loop_part = audio.subclipped(LOOP_NOKTASI, audio.duration)
+        with wave.open(DOSYA_ADI, 'rb') as w:
+            sr = w.getframerate()
+            n_channels = w.getnchannels()
+            sampwidth = w.getsampwidth()
+            frames = w.readframes(w.getnframes())
+            
+        dtype = np.int16 if sampwidth == 2 else np.int32
+        audio = np.frombuffer(frames, dtype=dtype)
+        if n_channels > 1:
+            audio = audio.reshape(-1, n_channels)
+        else:
+            audio = audio.reshape(-1, 1)
+            
+        intro_start = int(INTRO_BASLANGIC * sr)
+        loop_start = int(LOOP_NOKTASI * sr)
         
-        # 10 saniyelik kesintisiz boost oluştur (Python'daki gap'i sıfırlamak için)
-        clips = [intro] + [loop_part] * 20
-        full_audio = concatenate_audioclips(clips)
-        full_audio.write_audiofile("full_boost.wav", logger=None)
+        intro = audio[intro_start:loop_start]
+        loop_piece = audio[loop_start:]
+        
+        crossfade_samples = int(0.03 * sr) # 30ms pürüzsüz geçiş
+        
+        # Helikopter vızıltısını önlemek için pürüzsüz (crossfade) loop oluştur
+        loop_10s = loop_piece.copy()
+        for _ in range(15):
+            loop_10s = crossfade_audio(loop_10s, loop_piece, crossfade_samples)
+            
+        full_audio = crossfade_audio(intro, loop_10s, crossfade_samples)
+        
+        with wave.open("full_boost.wav", 'wb') as w:
+            w.setnchannels(n_channels)
+            w.setsampwidth(sampwidth)
+            w.setframerate(sr)
+            w.writeframes(full_audio.astype(dtype).tobytes())
+            
         return True
     except Exception as e:
         print(f"Hata: {e}")
@@ -219,8 +261,9 @@ def on_press(key):
 threading.Thread(target=monitor_logic, daemon=True).start()
 
 print("\n" + "="*50)
-print("  ALPHA BOOST SİSTEMİ (PERFECT FEEL EDITION) AKTİF")
+print("  ALPHA BOOST SİSTEMİ (PURE AUDIO EDITION) AKTİF")
 print(f"  Ses Seviyesi: %{int(SES_SEVIYESI*100)}")
+print("  Orijinal Ses Tizleri: KORUNDU")
 print("  Çoklu Kanal Hissiyatı (Feathering): AÇIK")
 print("  Sınırsız Boost (Freeplay) Modu için: F4 tuşuna basın!")
 print("="*50)
@@ -233,4 +276,4 @@ mouse_listener.start()
 keyboard_listener.start()
 
 mouse_listener.join()
-keyboard_listener.join()
+keyboard_listener.join()
