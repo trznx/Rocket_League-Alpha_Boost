@@ -16,6 +16,8 @@ import os
 import json
 import ctypes
 import wave
+from tkinter import messagebox
+import kalibrasyon
 import tkinter as tk
 from tkinter import ttk
 
@@ -67,9 +69,9 @@ IS_ACTIVE = user_settings["is_active"]
 
 # --- KALİBRASYON VERİLERİNİ YÜKLE ---
 if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
-    print("HATA: config.json veya template_0.png bulunamadi!")
-    print("Lütfen önce 'kalibrasyon.py' dosyasini çalistirin.")
-    sys.exit(1)
+    print("Warning: config.json or template_0.png missing. Please run calibration from GUI.")
+    BOOST_REGION = {"left": 0, "top": 0, "width": 100, "height": 100, "threshold": 128}
+    template_0 = np.zeros((50, 50), dtype=np.uint8)
 
 with open("config.json", "r") as f:
     config_data = json.load(f)
@@ -397,32 +399,64 @@ monitor_thread.daemon = True
 monitor_thread.start()
 
 # --- TKINTER ARAYÜZ (GUI) ---
+
+def on_calibration_callback(msg):
+    root.after(0, lambda: lbl_status.config(text=msg))
+
+def start_calibration():
+    res = messagebox.askyesno("Warning", "Are you sure you want to recalibrate?\n\nMake sure you are in Freeplay, your boost is at 0, and the game is Borderless/Windowed.")
+    if not res: return
+    
+    lbl_status.config(text="Calibration starting...")
+    calib_thread = threading.Thread(target=kalibrasyon.run_calibration, args=(on_calibration_callback,))
+    calib_thread.daemon = True
+    calib_thread.start()
+
 root = tk.Tk()
 root.title("Alpha Boost Engine")
-root.geometry("350x250")
+root.geometry("400x520")
 root.resizable(False, False)
-root.attributes("-topmost", True) # Her zaman üstte kalsın
+root.attributes("-topmost", True)
 
 style = ttk.Style()
 style.theme_use('clam')
 
-frame = ttk.Frame(root, padding="20")
+frame = ttk.Frame(root, padding="15")
 frame.pack(fill=tk.BOTH, expand=True)
 
-ttk.Label(frame, text="🚀 Alpha Boost Engine", font=("Arial", 14, "bold")).pack(pady=10)
+ttk.Label(frame, text="🚀 Alpha Boost Engine", font=("Arial", 16, "bold")).pack(pady=5)
 
-btn_active = ttk.Button(frame, text=f"Alpha Boost: {'ENABLED' if IS_ACTIVE else 'DISABLED'}", command=toggle_active)
-btn_active.pack(fill=tk.X, pady=5)
+# Controls
+frame_controls = ttk.LabelFrame(frame, text="Controls", padding="10")
+frame_controls.pack(fill=tk.X, pady=5)
 
-btn_freeplay = ttk.Button(frame, text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}", command=toggle_freeplay)
-btn_freeplay.pack(fill=tk.X, pady=5)
+btn_active = ttk.Button(frame_controls, text=f"Alpha Boost: {'ENABLED' if IS_ACTIVE else 'DISABLED'}", command=toggle_active)
+btn_active.pack(fill=tk.X, pady=2)
 
-lbl_volume = ttk.Label(frame, text=f"Volume Level: {int(SES_SEVIYESI*100)}%")
-lbl_volume.pack(pady=(10,0))
+btn_freeplay = ttk.Button(frame_controls, text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}", command=toggle_freeplay)
+btn_freeplay.pack(fill=tk.X, pady=2)
 
-slider_volume = ttk.Scale(frame, from_=0.0, to=1.0, orient='horizontal', command=on_volume_change)
+lbl_volume = ttk.Label(frame_controls, text=f"Volume Level: {int(SES_SEVIYESI*100)}%")
+lbl_volume.pack(pady=(5,0))
+slider_volume = ttk.Scale(frame_controls, from_=0.0, to=1.0, orient='horizontal', command=on_volume_change)
 slider_volume.set(SES_SEVIYESI)
-slider_volume.pack(fill=tk.X, pady=5)
+slider_volume.pack(fill=tk.X, pady=2)
+
+# Calibration Section
+frame_calib = ttk.LabelFrame(frame, text="Setup", padding="10")
+frame_calib.pack(fill=tk.X, pady=5)
+
+btn_calibrate = ttk.Button(frame_calib, text="🔧 Run Calibration", command=start_calibration)
+btn_calibrate.pack(fill=tk.X, pady=2)
+
+lbl_status = ttk.Label(frame_calib, text="Status: Ready", foreground="blue", wraplength=330, justify="center")
+lbl_status.pack(pady=5)
+
+# Info/Tips Section
+frame_tips = ttk.LabelFrame(frame, text="Tips & Info", padding="10")
+frame_tips.pack(fill=tk.X, pady=5)
+
+tips_text = "• Freeplay Mode: Enable ONLY when using Unlimited Boost.\n\n• Note: Pressing boost during goal replays or countdowns may trigger short sounds. This is normal.\n\n• Calibration: Ensure game is Borderless/Windowed."
+ttk.Label(frame_tips, text=tips_text, wraplength=340, font=("Arial", 8)).pack(fill=tk.X)
 
 root.mainloop()
-
