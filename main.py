@@ -29,9 +29,10 @@ def is_cursor_visible():
 
 # --- AYARLAR (Buradan Kontrol Et) ---
 DOSYA_ADI = "AlphaBoostSound.wav"
-INTRO_BASLANGIC = 0.075 
-LOOP_NOKTASI = 0.597    
-SES_SEVIYESI = 0.5
+INTRO_BASLANGIC = 0.075
+LOOP_NOKTASI = 0.597
+LOOP_BITIS = 0.971
+SES_SEVIYESI = 0.29
 
 # --- KALİBRASYON VERİLERİNİ YÜKLE ---
 if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
@@ -93,15 +94,17 @@ def sesleri_hazirla():
             
         intro_start = int(INTRO_BASLANGIC * sr)
         loop_start = int(LOOP_NOKTASI * sr)
+        loop_end = int(LOOP_BITIS * sr)
         
         intro = audio[intro_start:loop_start]
-        loop_piece = audio[loop_start:]
+        loop_piece = audio[loop_start:loop_end]
         
         crossfade_samples = int(0.03 * sr) # 30ms pürüzsüz geçiş
         
         # Helikopter vızıltısını önlemek için pürüzsüz (crossfade) loop oluştur
         loop_10s = loop_piece.copy()
-        for _ in range(15):
+        # Kullanıcının isteği: 1 dakikalık ses kaydı haline getir (yaklaşık 120 kez birleştir)
+        for _ in range(120):
             loop_10s = crossfade_audio(loop_10s, loop_piece, crossfade_samples)
             
         full_audio = crossfade_audio(intro, loop_10s, crossfade_samples)
