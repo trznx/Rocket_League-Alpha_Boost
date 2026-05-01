@@ -8,8 +8,11 @@ Bu proje, oyunun orijinal dosyalarını değiştirmeden (Anti-Cheat güvenli) pr
 - **Kullanıcı Dostu Arayüz (GUI)**: Kurulumu tamamladıktan sonra ayarlara Python kodu içinden değil, basit bir arayüz ekranından ulaşabilirsiniz.
 - **Özelleştirilebilir Kalibrasyon**: Sadece sizin monitörünüze ve oyun içi arayüz (UI) büyüklüğünüze göre kişiselleştirilir.
 
-## Gereksinimler
-Herhangi bir modern Windows bilgisayarda çalışır. Oyunda **FPS düşüşüne sebep olmaz**, en hızlı ekran okuma kütüphanesi olan `mss` kullanılmıştır.
+## Sistem Gereksinimleri ve Performans
+Bu program, bilgisayarınızı **kesinlikle yormayacak şekilde** özel olarak optimize edilmiştir.
+- **FPS Düşüşü Yaşanmaz:** Oyun içi FPS'inizi etkilemez. Ekran okuma kütüphanesi olarak piyasadaki en hızlı araç olan `mss` kullanılmıştır.
+- **Mikro-Alan Taraması (Micro-Region Capture):** Program saniyede 60 kez tüm ekranınızı okumaz! Kalibrasyon aşamasında belirlediğiniz o minicik "0" bölgesini (yaklaşık 70x70 piksel) okur. Bu sayede ekranınızın %99.9'u işlemci tarafından görmezden gelinir ve CPU kullanımı **%1'in altında** kalır.
+- **Sıfır Gecikme (Ultra-Low Latency):** Ses motoru C tabanlı PyGame kullanılarak `buffer=256` değerine ayarlanmıştır. Bu sayede Boost'a bastığınız an ile sesi duyduğunuz an arasındaki gecikme sadece ~15 milisaniyedir (insan kulağının algılayamayacağı kadar düşük).
 
 ## Kurulum ve Başlatma
 

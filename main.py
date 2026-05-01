@@ -176,6 +176,8 @@ def monitor_logic():
     last_thresh_img = None
     last_change_time = time.time()
     last_update_time = time.time()
+    last_rl_check_time = 0
+    cached_rl_active = False
     is_sound_playing = False
 
     with mss.mss() as sct:
@@ -225,7 +227,7 @@ def monitor_logic():
             should_play = False
             
             # Eğer fare görünür durumdaysa (ESC menüsü, Ayarlar, Ana menü), sesi tamamen yasakla!
-            if not IS_ACTIVE:
+            if not IS_ACTIVE or not cached_rl_active:
                 should_play = False
             elif is_cursor_visible():
                 should_play = False
@@ -253,15 +255,17 @@ def monitor_logic():
                 if estimated_speed < 0:
                     estimated_speed = 0
 
-            time.sleep(0.005) # Saniyede ~200 kez kontrol
+                        # Check if RL is active only twice a second to save CPU
+            if current_time - last_rl_check_time > 0.5:
+                cached_rl_active = is_rl_active()
+                last_rl_check_time = current_time
+                
+            time.sleep(0.015) # ~66 FPS - ultra optimized
 
 def on_click(x, y, button, pressed):
     global is_mouse_down, mouse_down_time
+    # Pynput callback MUST be as fast as possible to avoid input lag.
     if button == mouse.Button.left:
-        # Sadece oyun aktifken çalışsın
-        if not is_rl_active():
-            return
-            
         is_mouse_down = pressed
         if pressed:
             mouse_down_time = time.time()
