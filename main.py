@@ -315,6 +315,13 @@ def start_calibration():
     calib_thread.daemon = True
     calib_thread.start()
 
+import ctypes
+try:
+    myappid = 'trznx.alphaboost.engine.1.0'
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+except Exception:
+    pass
+
 root = tk.Tk()
 root.title("Alpha Boost Engine")
 root.geometry("400x600")
