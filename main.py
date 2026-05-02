@@ -43,6 +43,7 @@ SETTINGS_FILE = "user_settings.json"
 default_settings = {
     "volume": 0.3,
     "sound_profile": "classic",
+    "audio_delay_ms": 40,
     "freeplay_mode": False,
     "is_active": True
 }
@@ -66,6 +67,7 @@ def save_settings():
 
 SES_SEVIYESI = user_settings["volume"]
 SOUND_PROFILE = user_settings.get("sound_profile", "classic")
+AUDIO_DELAY_MS = user_settings.get("audio_delay_ms", 40)
 FREEPLAY_MODE = user_settings["freeplay_mode"]
 IS_ACTIVE = user_settings["is_active"]
 
@@ -264,6 +266,14 @@ def on_profile_change(event):
     save_settings()
     audio.load_sounds(prof_code)
 
+
+def on_delay_change(val):
+    global AUDIO_DELAY_MS
+    AUDIO_DELAY_MS = int(float(val))
+    lbl_delay.config(text=f"Ses Başlama Gecikmesi: {AUDIO_DELAY_MS} ms")
+    user_settings["audio_delay_ms"] = AUDIO_DELAY_MS
+    save_settings()
+
 def on_volume_change(val):
     global SES_SEVIYESI
     SES_SEVIYESI = float(val)
@@ -329,11 +339,18 @@ combo_profile.set("Klasik Orijinal Ses" if SOUND_PROFILE == "classic" else "Kıs
 combo_profile.bind("<<ComboboxSelected>>", on_profile_change)
 combo_profile.pack(fill=tk.X, pady=2)
 
+
 lbl_volume = ttk.Label(frame_controls, text=f"Volume Level: {int(SES_SEVIYESI*100)}%")
 lbl_volume.pack(pady=(5,0))
 slider_volume = ttk.Scale(frame_controls, from_=0.0, to=1.0, orient='horizontal', command=on_volume_change)
 slider_volume.set(SES_SEVIYESI)
 slider_volume.pack(fill=tk.X, pady=2)
+
+lbl_delay = ttk.Label(frame_controls, text=f"Ses Başlama Gecikmesi: {AUDIO_DELAY_MS} ms")
+lbl_delay.pack(pady=(5,0))
+slider_delay = ttk.Scale(frame_controls, from_=0, to=2000, orient='horizontal', command=on_delay_change)
+slider_delay.set(AUDIO_DELAY_MS)
+slider_delay.pack(fill=tk.X, pady=2)
 
 # Calibration Section
 frame_calib = ttk.LabelFrame(frame, text="Setup", padding="10")
