@@ -42,6 +42,7 @@ SETTINGS_FILE = "user_settings.json"
 
 default_settings = {
     "volume": 0.3,
+    "sound_profile": "classic",
     "freeplay_mode": False,
     "is_active": True
 }
@@ -64,6 +65,7 @@ def save_settings():
         json.dump(user_settings, f, indent=4)
 
 SES_SEVIYESI = user_settings["volume"]
+SOUND_PROFILE = user_settings.get("sound_profile", "classic")
 FREEPLAY_MODE = user_settings["freeplay_mode"]
 IS_ACTIVE = user_settings["is_active"]
 
@@ -90,7 +92,7 @@ if np.mean(template_0) == 0:
     sys.exit(1)
 
 # --- SES MOTORU BAŞLATMA ---
-audio = AlphaBoostAudioEngine()
+audio = AlphaBoostAudioEngine(profile=SOUND_PROFILE)
 
 # --- FİZİK VE DURUM DEĞİŞKENLERİ ---
 is_mouse_down = False
@@ -252,6 +254,16 @@ def toggle_active():
     save_settings()
     btn_active.config(text=f"Alpha Boost: {'ENABLED' if IS_ACTIVE else 'DISABLED'}")
 
+
+def on_profile_change(event):
+    global SOUND_PROFILE
+    val = combo_profile.get()
+    prof_code = "classic" if val == "Klasik Orijinal Ses" else "quiet_loop"
+    SOUND_PROFILE = prof_code
+    user_settings["sound_profile"] = prof_code
+    save_settings()
+    audio.load_sounds(prof_code)
+
 def on_volume_change(val):
     global SES_SEVIYESI
     SES_SEVIYESI = float(val)
@@ -308,6 +320,14 @@ btn_active.pack(fill=tk.X, pady=2)
 
 btn_freeplay = ttk.Button(frame_controls, text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}", command=toggle_freeplay)
 btn_freeplay.pack(fill=tk.X, pady=2)
+
+lbl_profile = ttk.Label(frame_controls, text="Ses Profili (Döngü Sesi):")
+lbl_profile.pack(pady=(5,0))
+
+combo_profile = ttk.Combobox(frame_controls, values=["Klasik Orijinal Ses", "Kısık Döngülü Ses (Tavsiye)"], state="readonly")
+combo_profile.set("Klasik Orijinal Ses" if SOUND_PROFILE == "classic" else "Kısık Döngülü Ses (Tavsiye)")
+combo_profile.bind("<<ComboboxSelected>>", on_profile_change)
+combo_profile.pack(fill=tk.X, pady=2)
 
 lbl_volume = ttk.Label(frame_controls, text=f"Volume Level: {int(SES_SEVIYESI*100)}%")
 lbl_volume.pack(pady=(5,0))

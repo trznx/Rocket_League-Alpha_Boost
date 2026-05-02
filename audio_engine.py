@@ -2,76 +2,78 @@ import pygame
 import os
 
 class AlphaBoostAudioEngine:
-    def __init__(self, channels=64):
-        # En düşük gecikme için buffer=256
+    """6e991ff commit'indeki mantığın BİREBİR aynısı.
+    
+    TEK FARK: find_channel(force=True) yerine dedike kanallar kullanılıyor.
+    Bu, kanal çapma riskini ortadan kaldırır.
+    """
+    
+    def __init__(self, channels=16, profile="classic"):
         pygame.mixer.pre_init(44100, -16, 2, 256)
         pygame.init()
         pygame.mixer.set_num_channels(channels)
         
+        self.ch_loops = [pygame.mixer.Channel(i) for i in range(8)]
+        
         self.levels = {}
-        self.active_groups = []
         self.master_volume = 0.3
+        self.profile = profile
         
         self.load_sounds()
 
     def get_path(self, filename):
-        return os.path.join("assets", "sounds", filename)
+        base_path = os.path.join("assets", "sounds", self.profile)
+        # Eğer profil klasörü bulunamazsa ana klasöre düş (fallback)
+        if not os.path.exists(base_path):
+            base_path = os.path.join("assets", "sounds")
+        return os.path.join(base_path, filename)
 
-    def load_sounds(self):
+    def load_sounds(self, new_profile=None):
+        if new_profile:
+            self.profile = new_profile
+            
+        self.levels.clear()
         try:
             self.levels[1] = pygame.mixer.Sound(self.get_path("full_boost.wav"))
             for i in range(2, 9):
                 self.levels[i] = pygame.mixer.Sound(self.get_path(f"level_{i}.wav"))
             self.set_volume(self.master_volume)
+            print(f"  [AudioEngine] '{self.profile}' profili başarıyla yüklendi!")
         except Exception as e:
             print(f"  [AudioEngine HATA] Sesler yüklenirken hata oluştu: {e}")
 
     def set_volume(self, volume):
         self.master_volume = volume
-        # We don't update self.levels volumes directly here because volumes are dynamically managed by update_speed
 
     def trigger_start(self):
-        pass # ADSR kullanılmıyor
+        pass
 
     def trigger_end(self):
-        pass # ADSR kullanılmıyor
+        pass
 
     def play_loop(self, speed):
-        """Boost basıldığı an 8 kanalın hepsini senkronize şekilde aynı anda başlatır"""
-        
         target_level = self._get_level_from_speed(speed)
-        current_group = []
         
-        # 8 seviyenin hepsini aynı salisede oynatıyoruz ama 7 tanesinin sesi 0.0
         for i in range(1, 9):
-            ch = pygame.mixer.find_channel(force=True)
-            if ch:
-                # Sadece hedef seviyenin sesi açık, diğerleri sessiz
-                vol = self.master_volume if i == target_level else 0.0
-                ch.set_volume(vol)
-                ch.play(self.levels[i], loops=-1)
-                current_group.append((i, ch))
-                
-        self.active_groups.append(current_group)
+            ch = self.ch_loops[i-1]
+            ch.stop()
+            vol = self.master_volume if i == target_level else 0.0
+            ch.set_volume(vol)
+            ch.play(self.levels[i], loops=-1)
 
     def update_speed(self, speed):
-        """Hız değiştikçe, o an çalan 8 kanallı grubun içindeki doğru kanalın sesini açıp diğerlerini kapatır."""
         target_level = self._get_level_from_speed(speed)
         
-        for group in self.active_groups:
-            for level_idx, ch in group:
-                if ch.get_busy():
-                    # Eğer kanal şu an çalması gereken kanalsa sesini aç, değilse 0 yap
-                    vol = self.master_volume if level_idx == target_level else 0.0
-                    ch.set_volume(vol)
+        for i in range(1, 9):
+            ch = self.ch_loops[i-1]
+            if ch.get_busy():
+                vol = self.master_volume if i == target_level else 0.0
+                ch.set_volume(vol)
 
     def stop_loop(self):
-        """Boost bırakıldığında gruptaki tüm kanalları yumuşakça (fadeout) kapatır"""
-        for group in self.active_groups:
-            for _, ch in group:
-                if ch.get_busy():
-                    ch.fadeout(150)
-        self.active_groups.clear()
+        for ch in self.ch_loops:
+            if ch.get_busy():
+                ch.fadeout(150)
 
     def _get_level_from_speed(self, speed):
         if speed < 275: return 1
