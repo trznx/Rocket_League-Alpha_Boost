@@ -195,9 +195,9 @@ Hızlı ve pratik bir şekilde aşağıdaki **"3 Adım + Kalibrasyon"** aşamala
 
 ⚠️ **UYARI 1:** Tüm dosyalarınızın aynı klasörün içerisinde olması gerektiğini unutmayın.
 
-⚠️ **UYARI 2:** Kalibrasyon yaptıktan sonra `Ayarlar` > `Arayüz` > `Arayüz Ölçeği & Ekran Ölçeği` değerlerini değiştirmeyin. Eğer **Arayüz Ölçeği** veya **Ekran Ölçeği** değerlerinizi kalibrasyon işlemi yaptıktan sonra değiştirirseniz tekrardan kalibrasyon yapmak zorunda kalabilirsiniz. Çünkü program düzgün bir şekilde **Boost (Takviye)** durumunuzu kontrol edemeyebilir.
+⚠️ **UYARI 2:** Kalibrasyon yaptıktan sonra `Ayarlar` > `Arayüz` > `Arayüz Ölçeği & Ekran Ölçeği` değerlerini asla değiştirmeyin (değiştirip eski hâline getirme işlemini bile yapmayın). Eğer **Arayüz Ölçeği** veya **Ekran Ölçeği** değerlerinizi kalibrasyon işlemi yaptıktan sonra değiştirirseniz `tekrardan` kalibrasyon yapmak zorunda kalabilirsiniz. Çünkü program düzgün bir şekilde **Boost (Takviye)** durumunuzu kontrol edemeyebilir ve bundan dolayı **Boost (Takviye)** değeriniz **0** olsa bile **Boost** basmaya çalıştığınızda ses duyabilirsiniz.
 
-⚠️ **UYARI 3:** Programın düzgün bir şekilde çalışabilmesi için **Boost (Takviye)** barınızın görünür olması şarttır.
+⚠️ **UYARI 3:** Programın düzgün bir şekilde çalışabilmesi için **Boost (Takviye)** barınızın `kesinlikle` görünür olması şarttır.
 
 ---
 
