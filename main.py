@@ -180,7 +180,10 @@ def monitor_logic():
                     should_play = True
             
             # Sesi Yönet
-            if should_play and not is_sound_playing:
+            # Ses Başlama Gecikmesi: Boost basıldıktan AUDIO_DELAY_MS ms sonra ses başlar
+            delay_elapsed = (current_time - mouse_down_time) >= (AUDIO_DELAY_MS / 1000.0)
+            
+            if should_play and not is_sound_playing and delay_elapsed:
                 audio.trigger_start()
                 audio.play_loop(estimated_speed)
                 is_sound_playing = True
