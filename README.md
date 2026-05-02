@@ -54,6 +54,18 @@ If you don't want to deal with Python, you can directly download the compiled ve
 
 ---
 
+### Notes
+
+- **Training Mode (Unlimited Boost):** While in training mode (if unlimited boost is enabled), you should set **Freeplay Mode** to **Enabled** in the UI or quickly press **F4** to toggle between Enabled/Disabled states. This setting is important to prevent incorrect boost sounds.
+- **In-Game:** When entering online (Casual, Ranked) or offline matches (i.e., all situations where you don't have unlimited boost), you should set **Freeplay Mode** to **Disabled** or quickly press **F4** to switch to this mode to avoid audio issues.
+- **Classic Original Sound:** If you select this profile, your boost sound at SuperSonic speed will be heard at normal volume.
+- **Quiet Loop Sound (Recommended):** If you select this profile, your boost sound at SuperSonic speed will be heard at a lower volume. This way, you can help mitigate perceived desync. It depends entirely on your personal preference.
+- **Low-RPM Start Sound:** If you select this profile, your boost sound will not change according to your car's speed and will always be heard at the same pitch.
+
+**Information:** Since we cannot see your car's speed directly (due to EAC), we estimate it mathematically and speed up/slow down your boost sound accordingly. This can lead to audio mismatches, but you'll get used to it quickly. For example, if you boost for a long time and then suddenly make a move that slows your car down, our program might still think you're fast and change the boost sound accordingly. This is exactly why audio mismatches can occur.
+
+In fact, all of this becomes something you fully adapt to after playing a few matches. After using this Alpha Boost sound in our program for a few matches or perhaps a few days, you'll reach a point where you won't even notice these things anymore.
+
 ### 💡 Developer Recommendations
 - **In-Game Settings:** Use **Standard Boost** or select any boost you want and turn on the **"Use Standard Boost Sound"** feature in **Settings -> Audio**. (Using the Standard Boost sound will be more effective and is recommended)
 - **Volume Balance:** Lower in-game sounds or increase the Alpha Boost volume from the program's interface so that in-game sounds do not drown out the Alpha Boost sound.
@@ -126,6 +138,17 @@ Python ile uğraşmak istemiyorsanız direkt derlenmiş sürümü indirebilirsin
 6. **⚠️ Görünürlük:** Programın çalışması için boost (takviye) barının **görünür** olması şarttır. Boost barı gizliyken ses tetiklenmez yani program düzgün bir şekilde çalışamaz.
 
 ---
+
+### Notlar
+
+- **Antrenman Modu (Sınırsız Boost):** Antrenman modundayken (sınırsız boost özelliğiniz açıksa) arayüz üzerinden **Freeplay Mode** kısmını **Enabled** durumuna getirmelisiniz veya hızlıca F4 tuşuna basarak da Enabled/Disabled durumları arasında geçiş yapabilirsiniz. Bu ayarın önemi, boost sesinin hatalı gelmesini önlemek içindir.
+- **Oyun İçi:** Çevrim içi (Normal, Dereceli) veya çevrim dışı maç girerken (yani sınırsız boost özelliğinizin olamayacağı tüm durumlarda) ses sorunu yaşamamanız için **Freeplay Mode** kısmını **Disabled** durumuna getirmelisiniz veya hızlıca F4 tuşuna basarak da bu duruma getirebilirsiniz. 
+- **Classic Original Sound:** Profil olarak bu profili seçerseniz SuperSonic hızınızdaki boost sesiniz normal seste duyulur.
+- **Quiet Loop Sound (Recommended):** Profil olarak bu profili seçerseniz SuperSonic hızınızdaki boost sesiniz daha az ses seviyesinde duyulur. Bu sayede senkronize olma durumunun bir diğer söyleyişle önüne geçmiş olabilirsiniz. Tamamen kendi hissiyatınıza bağlıdır.
+- **Low-RPM Start Sound:** Profil olarak bu profili seçerseniz boost sesiniz arabanızın hızına göre değişiklik göstermez ve hep aynı hızda duyulur.
+**Bilgilendirme:** Arabanızın hızını bizzat göremediğimiz için (EAC yüzünden) bunu matematiksel tahmin ile tahmin ederiz ve boost sesinizi buna göre hızlandırır/yavaşlatırız. Bu ses uyuşmazlığına yol açabilir ama kısa bir süre sonra alışıyorsunuz. Örneğin uzun bir süre boost basarsanız ve bir anda arabanızı yavaşlatacak bir hamle yaparsanız programımız sizi hâlâ hızlı sanıp boost sesini de ona göre değiştirebilir. İşte tam bu yüzden ses uyuşmazlığı ortaya çıkabilir.
+
+Aslında tüm bunlar birkaç maç girdikten sonra tamamen alışacağınız bir kıvama geliyor. Programımızdaki bu Alpha Boost sesinizi birkaç maç veya belki de birkaç gün kullandıktan sonra, artık bu kadar şeyi umursamayacak duruma geleceksiniz.
 
 ### 💡 Geliştirici Tavsiyeleri
 - **Oyun İçi Ayarlar:** **Standart Boost** kullanın ya da istediğiniz bir boostu seçip **Ayarlar -> Ses** kısmından **"Standart Boost Sesini Kullan"** özelliğini açın. (Standart Boost sesinin olması daha etkili olacaktır, tavsiye edilir)
