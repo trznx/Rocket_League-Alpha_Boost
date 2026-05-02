@@ -260,7 +260,13 @@ def toggle_active():
 def on_profile_change(event):
     global SOUND_PROFILE
     val = combo_profile.get()
-    prof_code = "classic" if val == "Klasik Orijinal Ses" else "quiet_loop"
+    if val == "Klasik Orijinal Ses":
+        prof_code = "classic"
+    elif val == "Düşük Devirli Kalkış Sesi (Low-RPM)":
+        prof_code = "low_rpm"
+    else:
+        prof_code = "quiet_loop"
+        
     SOUND_PROFILE = prof_code
     user_settings["sound_profile"] = prof_code
     save_settings()
@@ -334,8 +340,13 @@ btn_freeplay.pack(fill=tk.X, pady=2)
 lbl_profile = ttk.Label(frame_controls, text="Ses Profili (Döngü Sesi):")
 lbl_profile.pack(pady=(5,0))
 
-combo_profile = ttk.Combobox(frame_controls, values=["Klasik Orijinal Ses", "Kısık Döngülü Ses (Tavsiye)"], state="readonly")
-combo_profile.set("Klasik Orijinal Ses" if SOUND_PROFILE == "classic" else "Kısık Döngülü Ses (Tavsiye)")
+combo_profile = ttk.Combobox(frame_controls, values=["Klasik Orijinal Ses", "Kısık Döngülü Ses (Tavsiye)", "Düşük Devirli Kalkış Sesi (Low-RPM)"], state="readonly")
+if SOUND_PROFILE == "classic":
+    combo_profile.set("Klasik Orijinal Ses")
+elif SOUND_PROFILE == "low_rpm":
+    combo_profile.set("Düşük Devirli Kalkış Sesi (Low-RPM)")
+else:
+    combo_profile.set("Kısık Döngülü Ses (Tavsiye)")
 combo_profile.bind("<<ComboboxSelected>>", on_profile_change)
 combo_profile.pack(fill=tk.X, pady=2)
 
