@@ -41,9 +41,9 @@ def is_cursor_visible():
 SETTINGS_FILE = "user_settings.json"
 
 default_settings = {
-    "volume": 0.3,
-    "sound_profile": "classic",
-    "audio_delay_ms": 40,
+    "volume": 0.4,
+    "sound_profile": "quiet_loop",
+    "audio_delay_ms": 0,
     "freeplay_mode": False,
     "is_active": True
 }
@@ -263,9 +263,9 @@ def toggle_active():
 def on_profile_change(event):
     global SOUND_PROFILE
     val = combo_profile.get()
-    if val == "Klasik Orijinal Ses":
+    if val == "Classic Original Sound":
         prof_code = "classic"
-    elif val == "Düşük Devirli Kalkış Sesi (Low-RPM)":
+    elif val == "Low-RPM Start Sound":
         prof_code = "low_rpm"
     else:
         prof_code = "quiet_loop"
@@ -279,7 +279,7 @@ def on_profile_change(event):
 def on_delay_change(val):
     global AUDIO_DELAY_MS
     AUDIO_DELAY_MS = int(float(val))
-    lbl_delay.config(text=f"Ses Başlama Gecikmesi: {AUDIO_DELAY_MS} ms")
+    lbl_delay.config(text=f"Audio Start Delay: {AUDIO_DELAY_MS} ms")
     user_settings["audio_delay_ms"] = AUDIO_DELAY_MS
     save_settings()
 
@@ -318,7 +318,7 @@ def start_calibration():
 
 root = tk.Tk()
 root.title("Alpha Boost Engine")
-root.geometry("400x520")
+root.geometry("400x600")
 root.resizable(False, False)
 root.attributes("-topmost", True)
 
@@ -340,16 +340,16 @@ btn_active.pack(fill=tk.X, pady=2)
 btn_freeplay = ttk.Button(frame_controls, text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}", command=toggle_freeplay)
 btn_freeplay.pack(fill=tk.X, pady=2)
 
-lbl_profile = ttk.Label(frame_controls, text="Ses Profili (Döngü Sesi):")
+lbl_profile = ttk.Label(frame_controls, text="Sound Profile:")
 lbl_profile.pack(pady=(5,0))
 
-combo_profile = ttk.Combobox(frame_controls, values=["Klasik Orijinal Ses", "Kısık Döngülü Ses (Tavsiye)", "Düşük Devirli Kalkış Sesi (Low-RPM)"], state="readonly")
+combo_profile = ttk.Combobox(frame_controls, values=["Classic Original Sound", "Quiet Loop Sound (Recommended)", "Low-RPM Start Sound"], state="readonly")
 if SOUND_PROFILE == "classic":
-    combo_profile.set("Klasik Orijinal Ses")
+    combo_profile.set("Classic Original Sound")
 elif SOUND_PROFILE == "low_rpm":
-    combo_profile.set("Düşük Devirli Kalkış Sesi (Low-RPM)")
+    combo_profile.set("Low-RPM Start Sound")
 else:
-    combo_profile.set("Kısık Döngülü Ses (Tavsiye)")
+    combo_profile.set("Quiet Loop Sound (Recommended)")
 combo_profile.bind("<<ComboboxSelected>>", on_profile_change)
 combo_profile.pack(fill=tk.X, pady=2)
 
@@ -360,9 +360,9 @@ slider_volume = ttk.Scale(frame_controls, from_=0.0, to=1.0, orient='horizontal'
 slider_volume.set(SES_SEVIYESI)
 slider_volume.pack(fill=tk.X, pady=2)
 
-lbl_delay = ttk.Label(frame_controls, text=f"Ses Başlama Gecikmesi: {AUDIO_DELAY_MS} ms")
+lbl_delay = ttk.Label(frame_controls, text=f"Audio Start Delay: {AUDIO_DELAY_MS} ms")
 lbl_delay.pack(pady=(5,0))
-slider_delay = ttk.Scale(frame_controls, from_=0, to=2000, orient='horizontal', command=on_delay_change)
+slider_delay = ttk.Scale(frame_controls, from_=0, to=50, orient='horizontal', command=on_delay_change)
 slider_delay.set(AUDIO_DELAY_MS)
 slider_delay.pack(fill=tk.X, pady=2)
 
