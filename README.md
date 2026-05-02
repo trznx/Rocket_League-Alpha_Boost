@@ -6,76 +6,140 @@
 
 ## English
 
-### 📝 About the Project
-This project is an intelligent audio engine that simulates professional Alpha Boost sounds using dynamic physics calculations, without modifying the game's original files (**Anti-Cheat Safe**).
+### 🛡️ Anti-Cheat (EAC) Security
+**Your account safety is our top priority.**
+With Rocket League's new **Easy Anti-Cheat (EAC)** system, the use of tools like BakkesMod has become impossible.
 
-> **Important Note:** This is an external audio simulator. Since we cannot modify the game's internal code like BakkesMod does, the synchronization and audio experience won't be "1:1 perfect" like BakkesMod. It is designed to provide the Alpha Boost feel and sound as a layer over your gameplay.
+### 📝 About the Project
+This project is an intelligent audio engine that simulates Alpha Boost sounds using dynamic physics calculations.
+
+Due to the **Easy Anti-Cheat (EAC)** system, the incredibly popular Alpha Boost (Gold Rush) has also become unavailable. Like many players, I was frustrated by not being able to use this boost. Many players started using boosts that sound most similar to Alpha Boost. This is why I decided to create this program. In the following sections, you will find much more information about the program.
+
+**Why is this program 100% Safe?**
+- **No Memory Reading:** Unlike other tools, this program **never** touches Rocket League's RAM (Memory).
+- **Pixel Analysis Only:** It works exactly like a human eye. It only looks at the pixels of your boost meter to decide when to play the sound.
+- **External Engine:** The audio engine runs completely independently of the game process.
+- **I Use It Personally:** I (the developer) use this program on my main account. You can use it with complete peace of mind.
+
+---
+
+> **Important Note:** This is an external audio simulator. Since we cannot interfere with the game's internal code, you should not expect 100% perfect synchronization like in BakkesMod. Our goal is to provide the Alpha Boost feel as a professional audio layer.
 
 ### 🎥 Video Demonstration
-You can see and hear how the program works in-game by watching this video:
+See how it works before you install:
 [Watch the Demonstration Video Here](https://link-to-your-video.com)
 
-### ⚙️ How to Use (Step-by-Step)
-1. **Requirements:** Ensure you have Python installed.
-2. **Install Libraries:** Open your terminal and run:
-   ```cmd
-   pip install -r requirements.txt
-   ```
-3. **Calibration (Required Once):**
-   - Open Rocket League and go to **Freeplay**.
-   - Use your boost until it reaches **0 (Zero)**.
-   - Set the game to **Borderless** or **Windowed** mode.
-   - Run `python kalibrasyon.py` from the terminal. It will automatically find the boost meter and save your settings.
-4. **Running the Engine:**
-   - After calibration, run `python main.py` before you start playing.
-   - Use the **GUI (Interface)** to adjust volume, toggle the engine, or enable Freeplay Mode (Unlimited Boost).
+---
+
+### ⚙️ Installation & Preparation
+
+#### 📦 Option 1: Direct Download (For Beginners)
+If you don't want to deal with Python, you can directly download the compiled version:
+1. Go to the **[Releases](https://github.com/your-repo/releases)** page.
+2. Download the `AlphaBoostEngine.exe` file.
+3. Run the `.exe` file and follow the calibration step.
+
+#### 🐍 Option 2: Python (For Developers)
+1. Install Python.
+2. Run the `pip install -r requirements.txt` command.
+3. Start with `python main.py`.
+
+#### 🎯 Calibration (Mandatory - To be done once)
+1. Enter **Freeplay** mode.
+2. Set your boost exactly to **0**.
+3. Ensure the game is in **Borderless** or **Windowed** mode. (Full Screen mode works too; I personally did it in full screen mode)
+4. Start calibration by clicking the calibration button on the interface or via `python kalibrasyon.py`.
+5. **⚠️ CRITICAL WARNING:** Do not change your **Interface Scale** after calibration! For example, if you calibrate while your Rocket League interface is at 100% scale and later drop it to 30% or another value, the program may not work correctly. If you change the scale, you must **re-calibrate**.
+6. **⚠️ Visibility:** The boost bar **must** be visible for the program to work correctly. If the boost bar is hidden, the sound will not trigger, meaning the program cannot function properly.
+
+---
 
 ### 💡 Developer Recommendations
-- **Boost Choice:** It is highly recommended to use the **Standard Boost** in-game. If you are using another boost, go to **Settings -> Audio** and enable **"Use Standard Boost Sound"**.
-- **Volume Balancing:** To prevent the in-game boost from drowning out the Alpha Boost, lower the in-game sound effects or increase the Alpha Boost volume via our interface.
-- **Profiles:** You can choose from 3 different sound profiles in the dropdown menu. We recommend using the **"Quiet Loop Sound (Recommended)"** for the best experience.
-- **Audio Delay:** Keep the **Audio Start Delay** at **0ms** for the most responsive feel. Increase it only if you feel the sound is triggering too early on your specific system.
-- **Tips:** Don't forget to check the "Tips & Info" section in the interface!
+- **In-Game Settings:** Use **Standard Boost** or select any boost you want and turn on the **"Use Standard Boost Sound"** feature in **Settings -> Audio**. (Using the Standard Boost sound will be more effective and is recommended)
+- **Volume Balance:** Lower in-game sounds or increase the Alpha Boost volume from the program's interface so that in-game sounds do not drown out the Alpha Boost sound.
+- **Profiles:** I recommend using the **"Quiet Loop Sound (Recommended)"** profile. You can also try other profiles and use whichever suits you best.
+- **Delay:** For smoother Alpha Boost usage, keep the **Audio Start Delay** setting at **0ms**. If this is not suitable for you, you can choose the most appropriate delay value by making changes through the interface and trying it in training mode.
+- **Tips:** Be sure to read the "Tips & Info" section on the interface.
 
-### 🛠️ Developer's Method (How I Use It)
-I usually listen to music in the background while playing. I set the Alpha Boost volume between **20% - 35%** in the interface. When listening to music, I prefer it above **30%** so I can still hear the boost clearly. 
-The advantage of this method is that it masks the minor synchronization differences that occur because we aren't using BakkesMod. I can hear the Alpha Boost as a background layer, making it feel like I'm actually using it in BakkesMod. You can follow this method or find your own "sweet spot" using the interface.
+### 🛠️ Developer's Method (My Personal Method)
+I almost always listen to music in the background while playing. I set the Alpha Boost volume on the interface between **20%-35%** (above 30% if music is playing). (The reason for my volume level being this way is due to my computer volume and game volume levels. It would be better if you determine a custom volume level for yourself)
+**Why?** This method perfectly "masks" the minor synchronization differences and the original Alpha Boost sound. Hearing the Alpha Boost as a background layer makes it feel as if BakkesMod is actually there and you're using Alpha Boost. It provides an incredibly realistic experience when combined with music! (You don't have to turn on music, but my experience creates a much more effective result. People who can distinguish between the original Alpha Boost sound and the Alpha Boost sound provided in our program MAY be bothered by this situation; that's why I gave such a recommendation)
 
+---
+
+### 📜 License
+This project is protected by the **MIT License**.
+You are completely free to develop, improve, and share this project. We encourage the community to make better versions! However, since it is based on this original work, all improvements must maintain this license and credit the original project.
+
+---
 ---
 
 ## Türkçe
 
-### 📝 Proje Hakkında
-Bu proje, oyunun orijinal dosyalarını değiştirmeden (Anti-Cheat güvenli) profesyonel Alpha Boost seslerini dinamik fizik hesaplamalarıyla simüle eden akıllı bir ses motorudur.
+### 🛡️ Anti-Cheat (EAC) Güvenliği
+**Hesap güvenliğiniz bizim birinci önceliğimizdir.**
+Rocket League'in yeni **Easy Anti-Cheat (EAC)** sistemiyle birlikte, BakkesMod gibi araçların kullanımı artık imkansız hâle geldi.
 
-> **Önemli Not:** Bu harici bir ses simülatörüdür. BakkesMod gibi oyunun iç koduna müdahale edemediğimiz için, BakkesMod'daki gibi %100 kusursuz bir senkronizasyon beklememelisiniz. Amacımız, oyunun üzerine bir katman olarak Alpha Boost hissiyatını ve sesini eklemektir.
+### 📝 Proje Hakkında
+Bu proje, Alpha Boost seslerini dinamik fizik hesaplamalarıyla simüle eden akıllı bir ses motorudur.
+
+**Easy Anti-Cheat (EAC)** sistemi yüzünden oyuncular arasında inanılmaz popüler olan Alpha Boost (Gold Rush) da kullanılamaz hâle geldi.
+Benim gibi birçok oyuncu, bu boostu kullanamadığı için şikayetçi. Birçok oyuncu da Alpha Boost sesine en çok benzeyen boostlar kullanmaya başladı.
+Ben de bu sebepten ötürü böyle bir program yapma kararı aldım. Bu metnin devamında program ile ilgili çok daha fazla bilgiye sahip olacaksınız.
+
+
+**Bu Program Neden %100 Güvenli?**
+- **Hafıza Okumaz:** Diğer araçların aksine, bu program Rocket League'in RAM'ine (hafızasına) **asla** dokunmaz.
+- **Sadece Piksel Analizi:** Tıpkı bir insan gözü gibi çalışır. Sadece boost (takviye) sayacınızdaki piksellere bakarak sesin ne zaman çalacağına karar verir.
+- **Harici Motor:** Ses motoru oyun sürecinden tamamen bağımsız çalışır.
+- **Bizzat Kullanıyorum:** Ben (geliştirici) bu programı kendi ana hesabımda kullanıyorum. Tamamen gönül rahatlığıyla kullanabilirsiniz.
+
+---
+
+> **Önemli Not:** Bu harici bir ses simülatörüdür. Oyunun iç koduna müdahale edemediğimiz için BakkesMod'daki gibi %100 kusursuz bir senkronizasyon beklememelisiniz. Amacımız, profesyonel bir ses katmanı olarak Alpha Boost hissiyatını yaşatmaktır.
 
 ### 🎥 Video Gösterimi
-Programın oyun içinde nasıl göründüğünü ve duyulduğunu bu videodan izleyebilirsiniz:
+Kurmadan önce nasıl çalıştığını görün:
 [Tanıtım Videosunu Buradan İzleyin](https://link-to-your-video.com)
 
-### ⚙️ Nasıl Kullanılır? (Adım Adım)
-1. **Gereksinimler:** Bilgisayarınızda Python yüklü olduğundan emin olun.
-2. **Kütüphaneleri Kurun:** Terminali açın ve şu komutu çalıştırın:
-   ```cmd
-   pip install -r requirements.txt
-   ```
-3. **Kalibrasyon (Sadece 1 Kere):**
-   - Rocket League'i açın ve **Freeplay** (Antrenman) moduna girin.
-   - Boostunuzu **0 (Sıfır)** olana kadar harcayın.
-   - Oyunun **Sınırsız Pencere** (Borderless) veya **Pencereli** modda olduğundan emin olun.
-   - Terminalden `python kalibrasyon.py` komutunu çalıştırın. Program boost göstergesini bulup ayarlarınızı kaydedecektir.
-4. **Çalıştırma:**
-   - Kalibrasyon bittikten sonra, oyuna başlamadan önce `python main.py` yazın.
-   - Karşınıza çıkan **Arayüz (GUI)** üzerinden ses seviyesini ayarlayabilir, motoru açıp kapatabilir veya Sınırsız Boost (Freeplay) modunu aktif edebilirsiniz.
+---
+
+### ⚙️ Kurulum ve Hazırlık
+
+#### 📦 Yöntem 1: Doğrudan İndirme (Yeni Başlayanlar İçin)
+Python ile uğraşmak istemiyorsanız direkt derlenmiş sürümü indirebilirsiniz:
+1. **[Releases](https://github.com/your-repo/releases)** sayfasına gidin.
+2. `AlphaBoostEngine.exe` dosyasını indirin.
+3. `.exe` dosyasını çalıştırın ve kalibrasyon adımını takip edin.
+
+#### 🐍 Yöntem 2: Python (Geliştiriciler İçin)
+1. Python yükleyin.
+2. `pip install -r requirements.txt` komutunu çalıştırın.
+3. `python main.py` ile başlatın.
+
+#### 🎯 Kalibrasyon (Zorunlu - 1 Kez Yapılacak)
+1. **Freeplay** moduna girin.
+2. Boostunuzu tam **0** yapın.
+3. Oyunun **Sınırsız Pencere** veya **Pencereli** modda olduğundan emin olun. (Tam Ekran modunda da olur, ben tam ekran modunda yapmıştım)
+4. Arayüz üzerindeki kalibrasyon butonuna tıklayarak veya `python kalibrasyon.py` üzerinden kalibrasyonu başlatın.
+5. **⚠️ KRİTİK UYARI:** Kalibrasyon yaptıktan sonra **Arayüz Ölçeğini (Interface Scale)** değiştirmeyin! Örneğin Rocket League ayarlarınızdaki arayüzünüz %100 ölçekteyken kalibrasyon yapıp daha sonrasında %30'a veya başka bir değere düşürürseniz program düzgün çalışmayabilir. Ölçek değiştirirseniz **tekrardan** kalibrasyon yapmalısınız.
+6. **⚠️ Görünürlük:** Programın çalışması için boost (takviye) barının **görünür** olması şarttır. Boost barı gizliyken ses tetiklenmez yani program düzgün bir şekilde çalışamaz.
+
+---
 
 ### 💡 Geliştirici Tavsiyeleri
-- **Boost Seçimi:** Oyun içerisinde **Standart Boost** kullanmanız şiddetle önerilir. Başka bir boost kullanıyorsanız bile **Ayarlar -> Ses** sekmesinden **"Standart Boost Sesini Kullan"** özelliğini aktif edin.
-- **Ses Dengesi:** Oyun içi boost sesinin Alpha Boost'u bastırmaması için oyun içi sesleri biraz düşürmeniz veya arayüz üzerinden Alpha Boost sesini yükseltmeniz önerilir.
-- **Profiller:** Arayüzdeki 3 seçenekli menüden istediğinizi seçebilirsiniz, ancak **"Quiet Loop Sound (Recommended)"** olanı kullanmanız tavsiye edilir.
-- **Ses Gecikmesi:** En iyi tepkisellik için **Audio Start Delay** ayarını **0ms**'de tutun. Eğer sesin çok erken tetiklendiğini hissederseniz kendinize göre artırabilirsiniz.
-- **İpuçları:** Arayüzdeki "Tips & Info" kısmını okumayı unutmayın!
+- **Oyun İçi Ayarlar:** **Standart Boost** kullanın ya da istediğiniz bir boostu seçip **Ayarlar -> Ses** kısmından **"Standart Boost Sesini Kullan"** özelliğini açın. (Standart Boost sesinin olması daha etkili olacaktır, tavsiye edilir)
+- **Ses Dengesi:** Oyun içi sesleri kısın veya programın arayüzünden Alpha Boost sesini artırın ki oyun içi sesler Alpha Boost sesini bastırmasın.
+- **Profiller:** **"Quiet Loop Sound (Recommended)"** profilini kullanmanızı tavsiye ederim. Diğer profilleri de deneyebilirsiniz, hangisi size en uygun gelirse onu kullanabilirsiniz.
+- **Gecikme:** Daha düzgün bir Alpha Boost kullanımı için **Audio Start Delay** ayarını **0ms**'de tutun. Eğer bu durum size uygun değilse arayüz üzerinden değişiklikler yaparak ve antrenman modunda deneyerek size en uygun olan gecikme değerini seçebilirsiniz.
+- **İpuçları:** Arayüzdeki "Tips & Info" kısmını mutlaka okuyun.
 
-### 🛠️ Geliştirici Yöntemi (Ben Nasıl Kullanıyorum?)
-Ben bu programı kullanırken genellikle arka planda şarkı dinliyorum. Alpha Boost sesini arayüzden **%20 - %35** aralığında ayarlıyorum. Şarkı dinlerken genellikle **%30** üzerine çıkıyorum ki boost sesini net duyabileyim.
-Bu yöntemin avantajı, BakkesMod gibi kusursuz bir senkronizasyon beklediğimiz durumlardaki küçük farkları örtbas etmesidir. Alpha Boost sesini arkadan hafifçe duyduğumda, sanki gerçekten BakkesMod varmış gibi hissediyorum. Siz de bu şekilde yapabilir veya arayüzden kendinize en uygun ayarı bulabilirsiniz.
+### 🛠️ Geliştirici Yöntemi (Benim Şahsi Yöntemim)
+Oynarken neredeyse her zaman arkada müzik dinliyorum. Alpha Boost sesini arayüzden **%20-%35** aralıgı (müzik sesliyse %30 üzerine) ayarlıyorum. (Arayüzümdeki ses seviyesinin bu şekilde olmasının sebebi, bilgisayar sesim ve oyun sesimin ses düzeyinden kaynaklanıyor. Siz kendinize özel bir ses seviyesi belirlerseniz daha iyi olur)
+**Neden?** Bu yöntem, BakkesMod olmadığı için oluşan küçük senkronizasyon farklarını ve orijinal Alpha Boost sesini mükemmel şekilde "örtbas ediyor". Alpha Boost'u bir arka plan katmanı olarak duymak, sanki gerçekten BakkesMod varmış gibi hissettiriyor. Müzikle birleştiğinde inanılmaz gerçekçi bir deneyim sunuyor! (Müzik açmak zorunda değilsiniz ama benim bu deneyimim çok daha etkili bir sonuç yaratıyor. Orijinal Alpha Boost sesi ile bizim programımızdaki sunulan Alpha Boost sesini ayırt edebilecek seviyeye sahip olan kişiler bu durumdan BELKİ rahatsız olabilirler, bu sebepten ötürü böyle bir tavsiye verdim)
+
+---
+
+### 📜 Lisans
+Bu proje **MIT Lisansı** ile korunmaktadır.
+Bu projeyi geliştirmekte, iyileştirmekte ve paylaşmakta tamamen özgürsünüz. Topluluğun daha iyi sürümler yapmasını teşvik ediyoruz! Ancak, bu orijinal çalışmayı temel aldığı için, yapılan tüm geliştirmelerin bu lisansı koruması ve orijinal projeye atıfta bulunması zorunludur.

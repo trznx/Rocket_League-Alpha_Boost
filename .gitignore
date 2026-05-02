@@ -11,3 +11,4 @@ test_sounds/
 *.wav_processed
 .vscode/
 .idea/
+tools/
