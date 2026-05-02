@@ -16,11 +16,16 @@ This project is an intelligent audio engine that simulates the Alpha Boost sound
 ### ⛔️ The End of Alpha Boost (Gold Rush)...
 The use of the legendary Alpha Boost (Gold Rush) among players has unfortunately been restricted due to these circumstances. Many players are frustrated and forced to use similar-sounding boosts to capture the Alpha Boost feel. I developed this program to bring that iconic Alpha Boost experience back to life through a safe and external method. In the following sections, you can find detailed information about the technical operation and advantages of the system.
 
-✅ **Why is this Program 100% Safe?**
+### ✅ **Why is this Program 100% Safe?**
 - **No Memory Reading:** Unlike other tools, this program **never** touches Rocket League's RAM (memory).
 - **Pixel Analysis Only:** It works just like a human eye. It only looks at the pixels of your boost meter to decide when the sound should play.
 - **External Engine:** The audio engine runs completely independently of the game process.
 - **I Use It Personally:** I use this program on my main account. You can use it with complete peace of mind.
+
+### 💻 Interface
+Interface Overview: Get a quick and clear understanding of the program's interface and its features at a glance.
+
+<img width="394" height="627" alt="image" src="https://github.com/user-attachments/assets/f5d85b49-a980-44e1-bd03-2ceec318a1bc" />
 
 ---
 
@@ -65,16 +70,19 @@ You can quickly and practically install the program by following these **"3 Step
 4. A screenshot will be taken after the countdown ends. You can see this screenshot by hovering your mouse cursor over the `.exe` file on your taskbar.
 5. Make the screenshot full screen and carefully select the area that neatly covers the **0** digit in your **Boost** bar.
 6. Complete the process by pressing the Enter or Space key.
+7. Close `AlphaBoostEngine.exe` and restart the application to apply the changes.
 
-‼️ **Note 1:** If your Alpha Boost sound doesn't work after all steps, close and restart `AlphaBoostEngine.exe`.
-
-‼️ **Note 2:** If I release new versions in the future, simply downloading the latest `.exe` file and replacing the old one will be enough.
+‼️ **Note:** If I release new versions in the future, simply downloading the latest `.exe` file and replacing the old one will be enough.
 
 ⚠️ **WARNING 1:** Remember that all your files must be in the same folder.
 
 ⚠️ **WARNING 2:** Do not change your `Settings` > `Interface` > `Interface Scale & Display Scale` values after calibration. If you change your **Interface Scale** or **Display Scale** after calibrating, you may have to recalibrate. The program may not be able to correctly check your **Boost** status.
 
 ⚠️ **WARNING 3:** Your **Boost** bar must be visible for the program to work correctly.
+
+> Once the installation is complete, your project directory should have the following structure:
+<img width="615" height="182" alt="image" src="https://github.com/user-attachments/assets/f61bcb3c-df56-41d5-acac-8a78111a5a6b" />
+
 
 ---
 
@@ -139,11 +147,16 @@ Bu proje, Alpha Boost sesini dinamik fizik hesaplamalarıyla simüle eden akıll
 ### ⛔️ Alpha Boost (Gold Rush) Sonu...
 Oyuncular arasında efsaneleşen Alpha Boost (Gold Rush) kullanımı ne yazık ki bu durumlardan ötürü kısıtlanmış oldu. Birçok oyuncu bu durumdan şikayetçi ve Alpha Boost hissiyatını yakalayabilmek için benzer sesli boostlar (takviyeler) kullanmak zorunda kalıyorlar. Bu programı, Alpha Boost'un o ikonik deneyimini güvenli ve harici bir yöntemle yeniden hayata döndürmek için geliştirdim. Aşağıdaki bölümlerde, sistemin teknik işleyişi ve sunduğu avantajlar hakkında detaylı bilgi edinebilirsiniz.
 
-✅ **Bu Program Neden %100 Güvenli?**
+### ✅ **Bu Program Neden %100 Güvenli?**
 - **Hafıza Okumaz:** Diğer araçların aksine, bu program Rocket League'in RAM'ine (hafızasına) **asla** dokunmaz.
 - **Sadece Piksel Analizi:** Tıpkı bir insan gözü gibi çalışır. Sadece boost (takviye) sayacınızdaki piksellere bakarak sesin ne zaman çalacağına karar verir.
 - **Harici Motor:** Ses motoru oyun sürecinden tamamen bağımsız çalışır.
 - **Bizzat Kullanıyorum:** Ben (geliştirici) bu programı kendi ana hesabımda kullanıyorum. Tamamen gönül rahatlığıyla kullanabilirsiniz.
+
+### 💻 Arayüz
+Programın arayüzü hakkında hızlı ve kolay bir şekilde bilgi edinebilirsiniz.
+
+<img width="394" height="627" alt="image" src="https://github.com/user-attachments/assets/f5d85b49-a980-44e1-bd03-2ceec318a1bc" />
 
 ---
 
@@ -188,16 +201,19 @@ Hızlı ve pratik bir şekilde aşağıdaki **"3 Adım + Kalibrasyon"** aşamala
 4. Geri sayım bittikten sonra bir ekran görüntüsü alınacaktır. Bu ekran görüntüsünü görev çubuğunuzdaki `.exe` dosyasının üzerine fare imleciniz ile gelerek görebilirsiniz.
 5. Ekran görüntüsünü tam ekran yapın ve **Boost** barınızdaki **0** rakamını düzgünce kapsayacak bir şekilde seçim yapın.
 6. Enter veya Space tuşuna basarak işlemi tamamlayın.
+7. `AlphaBoostEngine.exe` dosyasını kapatıp yeniden çalıştırın.
 
-‼️ **Not 1:** Tüm işlemler bittikten sonra Alpha Boost sesiniz çalışmazsa `AlphaBoostEngine.exe` dosyasını kapatıp tekrardan çalıştırın.
-
-‼️ **Not 2:** Eğer ilerleyen zamanlarda yeni sürümler yayımlarsam yalnızca son sürümdeki `.exe` dosyasını indirip eski `.exe` dosyası ile değiştirmeniz yeterli olacaktır.
+‼️ **Not:** Eğer ilerleyen zamanlarda yeni sürümler yayımlarsam yalnızca son sürümdeki `.exe` dosyasını indirip eski `.exe` dosyası ile değiştirmeniz yeterli olacaktır.
 
 ⚠️ **UYARI 1:** Tüm dosyalarınızın aynı klasörün içerisinde olması gerektiğini unutmayın.
 
 ⚠️ **UYARI 2:** Kalibrasyon yaptıktan sonra `Ayarlar` > `Arayüz` > `Arayüz Ölçeği & Ekran Ölçeği` değerlerini asla değiştirmeyin (değiştirip eski hâline getirme işlemini bile yapmayın). Eğer **Arayüz Ölçeği** veya **Ekran Ölçeği** değerlerinizi kalibrasyon işlemi yaptıktan sonra değiştirirseniz `tekrardan` kalibrasyon yapmak zorunda kalabilirsiniz. Çünkü program düzgün bir şekilde **Boost (Takviye)** durumunuzu kontrol edemeyebilir ve bundan dolayı **Boost (Takviye)** değeriniz **0** olsa bile **Boost** basmaya çalıştığınızda ses duyabilirsiniz.
 
 ⚠️ **UYARI 3:** Programın düzgün bir şekilde çalışabilmesi için **Boost (Takviye)** barınızın `kesinlikle` görünür olması şarttır.
+
+> Kurulumu tamamladığınızda klasörünüzde şu şekilde bir dosya düzeninin oluşması beklenir:
+<img width="615" height="182" alt="image" src="https://github.com/user-attachments/assets/9501ee51-429d-42fb-9ae9-514f2ad77ddc" />
+
 
 ---
 
