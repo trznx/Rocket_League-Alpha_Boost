@@ -1,14 +1,28 @@
+# Python Temel Dosyaları
 __pycache__/
 *.pyc
+
+# PyInstaller / Derleme Çıktıları
+build/
+dist/
+*.spec
+
+# Kullanıcıya Özel Yerel Ayarlar & Kalibrasyon (GitHub'a gitmemeli)
 config.json
 template_0.png
 user_settings.json
+
+# Test ve Geliştirme Dosyaları
 debug_*.png
 scratch/
 _archive/
 test_sounds/
+tools/
+
+# Medya / İşlenmiş Sesler
 *.mp4
 *.wav_processed
+
+# IDE / Editör Dosyaları
 .vscode/
 .idea/
-tools/
