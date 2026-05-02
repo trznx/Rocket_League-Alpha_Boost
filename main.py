@@ -76,22 +76,21 @@ if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
     print("Warning: config.json or template_0.png missing. Please run calibration from GUI.")
     BOOST_REGION = {"left": 0, "top": 0, "width": 100, "height": 100, "threshold": 128}
     template_0 = np.zeros((50, 50), dtype=np.uint8)
+else:
+    with open("config.json", "r") as f:
+        config_data = json.load(f)
+        BOOST_REGION = {
+            "left": config_data["left"],
+            "top": config_data["top"],
+            "width": config_data["width"],
+            "height": config_data["height"]
+        }
+        THRESHOLD_VALUE = config_data.get("threshold", 120)
 
-with open("config.json", "r") as f:
-    config_data = json.load(f)
-    BOOST_REGION = {
-        "left": config_data["left"],
-        "top": config_data["top"],
-        "width": config_data["width"],
-        "height": config_data["height"]
-    }
-    THRESHOLD_VALUE = config_data.get("threshold", 120)
+    template_0 = cv2.imread("template_0.png", 0) # Grayscale olarak oku
 
-template_0 = cv2.imread("template_0.png", 0) # Grayscale olarak oku
-
-if np.mean(template_0) == 0:
-    print("HATA: template_0.png tamamen SİYAH (boş)! Kalibrasyon sırasında '0' rakamı düzgün alınamamış.")
-    sys.exit(1)
+    if np.mean(template_0) == 0:
+        print("HATA: template_0.png tamamen SİYAH (boş)! Kalibrasyon sırasında '0' rakamı düzgün alınamamış.")
 
 # --- SES MOTORU BAŞLATMA ---
 audio = AlphaBoostAudioEngine(profile=SOUND_PROFILE)
@@ -321,6 +320,14 @@ root.title("Alpha Boost Engine")
 root.geometry("400x600")
 root.resizable(False, False)
 root.attributes("-topmost", True)
+try:
+    import sys
+    icon_path = os.path.join(sys._MEIPASS, "icon.png") if hasattr(sys, "_MEIPASS") else "icon.png"
+    if os.path.exists(icon_path):
+        icon_img = tk.PhotoImage(file=icon_path)
+        root.iconphoto(False, icon_img)
+except Exception:
+    pass
 
 style = ttk.Style()
 style.theme_use('clam')
