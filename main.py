@@ -322,10 +322,9 @@ root.resizable(False, False)
 root.attributes("-topmost", True)
 try:
     import sys
-    icon_path = os.path.join(sys._MEIPASS, "icon.png") if hasattr(sys, "_MEIPASS") else "icon.png"
+    icon_path = os.path.join(sys._MEIPASS, "icon.ico") if hasattr(sys, "_MEIPASS") else "icon.ico"
     if os.path.exists(icon_path):
-        icon_img = tk.PhotoImage(file=icon_path)
-        root.iconphoto(False, icon_img)
+        root.iconbitmap(icon_path)
 except Exception:
     pass
 
