@@ -1,26 +1,13 @@
 __pycache__/
 *.pyc
-*.pyo
-
-# Kullanıcıya özel yapılandırma dosyaları (Asla yüklenmeyecek)
 config.json
-user_settings.json
 template_0.png
-
-# Hata ayıklama çıktıları
+user_settings.json
 debug_*.png
-
-# Python sanal ortam (Eğer kullanan olursa diye)
-venv/
-env/
-.env
-
-# MacOS / Windows sistem dosyaları
-.DS_Store
-Thumbs.db
-
-# Development/Test klas�rleri (GitHub'a gitmeyecek)
-_archive/
 scratch/
+_archive/
 test_sounds/
-tools/
+*.mp4
+*.wav_processed
+.vscode/
+.idea/
