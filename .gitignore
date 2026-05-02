@@ -6,6 +6,7 @@ __pycache__/
 build/
 dist/
 *.spec
+build.bat
 
 # Kullanıcıya Özel Yerel Ayarlar & Kalibrasyon (GitHub'a gitmemeli)
 config.json
