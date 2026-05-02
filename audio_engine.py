@@ -22,10 +22,15 @@ class AlphaBoostAudioEngine:
         self.load_sounds()
 
     def get_path(self, filename):
-        base_path = os.path.join("assets", "sounds", self.profile)
-        # Eğer profil klasörü bulunamazsa ana klasöre düş (fallback)
-        if not os.path.exists(base_path):
-            base_path = os.path.join("assets", "sounds")
+        import sys
+        if hasattr(sys, '_MEIPASS'):
+            base_path = os.path.join(sys._MEIPASS, "assets", "sounds", self.profile)
+            if not os.path.exists(base_path):
+                base_path = os.path.join(sys._MEIPASS, "assets", "sounds")
+        else:
+            base_path = os.path.join("assets", "sounds", self.profile)
+            if not os.path.exists(base_path):
+                base_path = os.path.join("assets", "sounds")
         return os.path.join(base_path, filename)
 
     def load_sounds(self, new_profile=None):

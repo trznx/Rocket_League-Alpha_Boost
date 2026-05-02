@@ -122,7 +122,7 @@ def monitor_logic():
     cached_rl_active = False
     is_sound_playing = False
 
-    with mss.mss() as sct:
+    with mss.MSS() as sct:
         while True:
             current_time = time.time()
             dt = current_time - last_update_time

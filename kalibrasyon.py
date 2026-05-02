@@ -18,7 +18,7 @@ def run_calibration(callback=None):
 
     if callback: callback("Taking screenshot...")
 
-    with mss.mss() as sct:
+    with mss.MSS() as sct:
         monitor = sct.monitors[1]
         img_bgra = np.array(sct.grab(monitor))
 
