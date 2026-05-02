@@ -329,7 +329,7 @@ root.resizable(False, False)
 root.attributes("-topmost", True)
 try:
     import sys
-    icon_path = os.path.join(sys._MEIPASS, "icon.ico") if hasattr(sys, "_MEIPASS") else "icon.ico"
+    icon_path = os.path.join(sys._MEIPASS, "icon", "app_icon.ico") if hasattr(sys, "_MEIPASS") else os.path.join("icon", "app_icon.ico")
     if os.path.exists(icon_path):
         root.iconbitmap(icon_path)
 except Exception:
