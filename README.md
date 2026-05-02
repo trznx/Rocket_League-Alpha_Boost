@@ -2,6 +2,8 @@
 
 [English](#english) - [Türkçe](#türkçe)
 
+I look forward to hearing your thoughts on this project. Please feel free to point out any missing features or areas that you believe need improvement. If you think there is a better method or a more efficient project out there, I would love for you to share it with me.
+
 ---
 
 ## English
