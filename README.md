@@ -1,6 +1,6 @@
 # 🚀 Rocket League Alpha Boost Engine (Pure Audio Edition)
 
-[English](#english) | [Türkçe](#türkçe)
+[English](#english) - [Türkçe](#türkçe)
 
 ---
 
@@ -25,9 +25,24 @@ Due to the **Easy Anti-Cheat (EAC)** system, the incredibly popular Alpha Boost 
 
 > **Important Note:** This is an external audio simulator. Since we cannot interfere with the game's internal code, you should not expect 100% perfect synchronization like in BakkesMod. Our goal is to provide the Alpha Boost feel as a professional audio layer.
 
-### 🎥 Video Demonstration
-See how it works before you install:
-[Watch the Demonstration Video Here](https://link-to-your-video.com)
+### 🎥 Video
+Explore how the program operates via these demo videos. You can review the configuration settings by interacting with the on-screen interface, and it works seamlessly regardless of which boost is selected in-game.
+
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/04fc5710-dfd4-4759-b48b-f19e51296ce9" width="100%" controls>
+    Your browser does not support the video tag.
+  </video>
+</p>
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/9ba79b13-ad12-4ebb-ba3b-052724cee48c" width="100%" controls>
+    Your browser does not support the video tag.
+  </video>
+</p>
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/7a223084-ec5d-46bb-8aee-e0f501a05463" width="100%" controls>
+    Your browser does not support the video tag.
+  </video>
+</p>
 
 ---
 
@@ -54,7 +69,7 @@ If you don't want to deal with Python, you can directly download the compiled ve
 
 ---
 
-### Notes
+### 📌 Notes
 
 - **Training Mode (Unlimited Boost):** While in training mode (if unlimited boost is enabled), you should set **Freeplay Mode** to **Enabled** in the UI or quickly press **F4** to toggle between Enabled/Disabled states. This setting is important to prevent incorrect boost sounds.
 - **In-Game:** When entering online (Casual, Ranked) or offline matches (i.e., all situations where you don't have unlimited boost), you should set **Freeplay Mode** to **Disabled** or quickly press **F4** to switch to this mode to avoid audio issues.
@@ -64,7 +79,7 @@ If you don't want to deal with Python, you can directly download the compiled ve
 
 **Information:** Since we cannot see your car's speed directly (due to EAC), we estimate it mathematically and speed up/slow down your boost sound accordingly. This can lead to audio mismatches, but you'll get used to it quickly. For example, if you boost for a long time and then suddenly make a move that slows your car down, our program might still think you're fast and change the boost sound accordingly. This is exactly why audio mismatches can occur.
 
-In fact, all of this becomes something you fully adapt to after playing a few matches. After using this Alpha Boost sound in our program for a few matches or perhaps a few days, you'll reach a point where you won't even notice these things anymore.
+> It might take a couple of hours or a few matches to familiarize yourself with the audio. Once you've adjusted, you'll be able to use it comfortably.
 
 ### 💡 Developer Recommendations
 - **In-Game Settings:** Use **Standard Boost** or select any boost you want and turn on the **"Use Standard Boost Sound"** feature in **Settings -> Audio**. (Using the Standard Boost sound will be more effective and is recommended)
@@ -110,21 +125,36 @@ Ben de bu sebepten ötürü böyle bir program yapma kararı aldım. Bu metnin d
 
 > **Önemli Not:** Bu harici bir ses simülatörüdür. Oyunun iç koduna müdahale edemediğimiz için BakkesMod'daki gibi %100 kusursuz bir senkronizasyon beklememelisiniz. Amacımız, profesyonel bir ses katmanı olarak Alpha Boost hissiyatını yaşatmaktır.
 
-### 🎥 Video Gösterimi
-Kurmadan önce nasıl çalıştığını görün:
-[Tanıtım Videosunu Buradan İzleyin](https://link-to-your-video.com)
+### 🎥 Video
+Örnek videolar üzerinden programın nasıl çalıştığını daha iyi anlayın. Video üzerindeki arayüzü kontrol ederek ayar yapılandırmalarını inceleyebilirsiniz, seçilen boost fark etmeksizin kullanabilirsiniz.
+
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/04fc5710-dfd4-4759-b48b-f19e51296ce9" width="100%" controls>
+    Tarayıcınız video etiketini desteklemiyor.
+  </video>
+</p>
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/9ba79b13-ad12-4ebb-ba3b-052724cee48c" width="100%" controls>
+    Tarayıcınız video etiketini desteklemiyor.
+  </video>
+</p>
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/7a223084-ec5d-46bb-8aee-e0f501a05463" width="100%" controls>
+    Tarayıcınız video etiketini desteklemiyor.
+  </video>
+</p>
 
 ---
 
 ### ⚙️ Kurulum ve Hazırlık
 
-#### 📦 Yöntem 1: Doğrudan İndirme (Yeni Başlayanlar İçin)
+#### 📦 Yöntem 1: Doğrudan İndirme (Yeni Başlayanlar için)
 Python ile uğraşmak istemiyorsanız direkt derlenmiş sürümü indirebilirsiniz:
 1. **[Releases](https://github.com/your-repo/releases)** sayfasına gidin.
 2. `AlphaBoostEngine.exe` dosyasını indirin.
 3. `.exe` dosyasını çalıştırın ve kalibrasyon adımını takip edin.
 
-#### 🐍 Yöntem 2: Python (Geliştiriciler İçin)
+#### 🐍 Yöntem 2: Python (Geliştiriciler için)
 1. Python yükleyin.
 2. `pip install -r requirements.txt` komutunu çalıştırın.
 3. `python main.py` ile başlatın.
@@ -133,13 +163,13 @@ Python ile uğraşmak istemiyorsanız direkt derlenmiş sürümü indirebilirsin
 1. **Freeplay** moduna girin.
 2. Boostunuzu tam **0** yapın.
 3. Oyunun **Sınırsız Pencere** veya **Pencereli** modda olduğundan emin olun. (Tam Ekran modunda da olur, ben tam ekran modunda yapmıştım)
-4. Arayüz üzerindeki kalibrasyon butonuna tıklayarak veya `python kalibrasyon.py` üzerinden kalibrasyonu başlatın.
+4. Arayüz üzerindeki kalibrasyon butonuna tıklayarak **VEYA** `python kalibrasyon.py` üzerinden kalibrasyonu başlatın.
 5. **⚠️ KRİTİK UYARI:** Kalibrasyon yaptıktan sonra **Arayüz Ölçeğini (Interface Scale)** değiştirmeyin! Örneğin Rocket League ayarlarınızdaki arayüzünüz %100 ölçekteyken kalibrasyon yapıp daha sonrasında %30'a veya başka bir değere düşürürseniz program düzgün çalışmayabilir. Ölçek değiştirirseniz **tekrardan** kalibrasyon yapmalısınız.
 6. **⚠️ Görünürlük:** Programın çalışması için boost (takviye) barının **görünür** olması şarttır. Boost barı gizliyken ses tetiklenmez yani program düzgün bir şekilde çalışamaz.
 
 ---
 
-### Notlar
+### 📌 Notlar
 
 - **Antrenman Modu (Sınırsız Boost):** Antrenman modundayken (sınırsız boost özelliğiniz açıksa) arayüz üzerinden **Freeplay Mode** kısmını **Enabled** durumuna getirmelisiniz veya hızlıca F4 tuşuna basarak da Enabled/Disabled durumları arasında geçiş yapabilirsiniz. Bu ayarın önemi, boost sesinin hatalı gelmesini önlemek içindir.
 - **Oyun İçi:** Çevrim içi (Normal, Dereceli) veya çevrim dışı maç girerken (yani sınırsız boost özelliğinizin olamayacağı tüm durumlarda) ses sorunu yaşamamanız için **Freeplay Mode** kısmını **Disabled** durumuna getirmelisiniz veya hızlıca F4 tuşuna basarak da bu duruma getirebilirsiniz. 
@@ -148,7 +178,7 @@ Python ile uğraşmak istemiyorsanız direkt derlenmiş sürümü indirebilirsin
 - **Low-RPM Start Sound:** Profil olarak bu profili seçerseniz boost sesiniz arabanızın hızına göre değişiklik göstermez ve hep aynı hızda duyulur.
 **Bilgilendirme:** Arabanızın hızını bizzat göremediğimiz için (EAC yüzünden) bunu matematiksel tahmin ile tahmin ederiz ve boost sesinizi buna göre hızlandırır/yavaşlatırız. Bu ses uyuşmazlığına yol açabilir ama kısa bir süre sonra alışıyorsunuz. Örneğin uzun bir süre boost basarsanız ve bir anda arabanızı yavaşlatacak bir hamle yaparsanız programımız sizi hâlâ hızlı sanıp boost sesini de ona göre değiştirebilir. İşte tam bu yüzden ses uyuşmazlığı ortaya çıkabilir.
 
-Aslında tüm bunlar birkaç maç girdikten sonra tamamen alışacağınız bir kıvama geliyor. Programımızdaki bu Alpha Boost sesinizi birkaç maç veya belki de birkaç gün kullandıktan sonra, artık bu kadar şeyi umursamayacak duruma geleceksiniz.
+> Bu sese alışmanız birkaç saat veya birkaç maç sürebilir. Alıştıktan sonra rahatlıkla kullanabileceksiniz.
 
 ### 💡 Geliştirici Tavsiyeleri
 - **Oyun İçi Ayarlar:** **Standart Boost** kullanın ya da istediğiniz bir boostu seçip **Ayarlar -> Ses** kısmından **"Standart Boost Sesini Kullan"** özelliğini açın. (Standart Boost sesinin olması daha etkili olacaktır, tavsiye edilir)
