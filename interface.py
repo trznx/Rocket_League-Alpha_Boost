@@ -187,7 +187,7 @@ class SectionHeader(ctk.CTkFrame):
         ctk.CTkLabel(
             row, text=title.upper(),
             font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
-            text_color=COLORS["accent_blue"],
+            text_color=COLORS["text_primary"],
             anchor="w",
         ).pack(side="left")
 
@@ -395,10 +395,10 @@ class AlphaBoostApp(ctk.CTk):
             icon_name="ic_boost.png",
             command=self._on_toggle_active,
         )
-        self.toggle_active.pack(fill="x", pady=(0, 10))
+        self.toggle_active.pack(fill="x", pady=(0, 6))
 
         # Divider
-        ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=4)
+        ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=6)
 
         # Freeplay Mode toggle
         self.toggle_freeplay = ToggleRow(
@@ -409,10 +409,10 @@ class AlphaBoostApp(ctk.CTk):
             icon_name="ic_freeplay.png",
             command=self._on_toggle_freeplay,
         )
-        self.toggle_freeplay.pack(fill="x", pady=(10, 0))
+        self.toggle_freeplay.pack(fill="x", pady=(6, 6))
 
         # Divider
-        ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=(10, 4))
+        ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=6)
 
         # Keyboard Shortcuts toggle
         self.toggle_shortcuts = ToggleRow(
@@ -423,7 +423,7 @@ class AlphaBoostApp(ctk.CTk):
             icon_name="ic_keyboard.png",
             command=self._on_toggle_shortcuts,
         )
-        self.toggle_shortcuts.pack(fill="x", pady=(4, 0))
+        self.toggle_shortcuts.pack(fill="x", pady=(6, 0))
 
     def _on_toggle_active(self):
         self.cb["toggle_active"]()
@@ -446,7 +446,6 @@ class AlphaBoostApp(ctk.CTk):
         inner.pack(fill="x", padx=16, pady=14)
 
         profiles = {
-            "Alpha Boost": "alpha_boost",
             "Classic Original Sound": "classic",
             "Quiet Loop Sound (Recommended)": "quiet_loop",
             "Low-RPM Start Sound": "low_rpm",
@@ -457,7 +456,7 @@ class AlphaBoostApp(ctk.CTk):
         ctk.CTkLabel(
             inner, text="Active Profile",
             font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
-            text_color=COLORS["text_secondary"],
+            text_color=COLORS["text_primary"],
             anchor="w",
         ).pack(anchor="w", pady=(0, 6))
 
@@ -485,9 +484,12 @@ class AlphaBoostApp(ctk.CTk):
         self.combo_profile.set(current_display)
         self.combo_profile.pack(fill="x")
 
-        # Shortcut hint
-        shortcuts_hint = ctk.CTkFrame(inner, fg_color="transparent")
-        shortcuts_hint.pack(fill="x", pady=(8, 0))
+        # Shortcut hint — centered
+        shortcuts_outer = ctk.CTkFrame(inner, fg_color="transparent")
+        shortcuts_outer.pack(fill="x", pady=(8, 0))
+
+        shortcuts_hint = ctk.CTkFrame(shortcuts_outer, fg_color="transparent")
+        shortcuts_hint.pack(anchor="center")
 
         hint_items = [
             ("F1", "Classic"),
@@ -496,7 +498,7 @@ class AlphaBoostApp(ctk.CTk):
         ]
         for key, label in hint_items:
             chip = ctk.CTkFrame(shortcuts_hint, fg_color=COLORS["bg_secondary"], corner_radius=6)
-            chip.pack(side="left", padx=(0, 6))
+            chip.pack(side="left", padx=3)
             ctk.CTkLabel(
                 chip,
                 text=f" {key} ",
@@ -563,39 +565,82 @@ class AlphaBoostApp(ctk.CTk):
     # ── Calibration ───────────────────────────────────────────────────────────
 
     def _build_calibration_card(self, parent):
-        SectionHeader(parent, "Setup & Calibration", icon_name="ic_calibration.png").pack(fill="x", pady=(0, 4))
+        """Subtle, collapsible calibration section — not prominent."""
+        calib_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        calib_frame.pack(fill="x", pady=(0, 8))
 
-        card = Card(parent)
-        card.pack(fill="x", pady=(0, 12))
+        # Collapsed state: a small muted text link + status
+        self._calib_expanded = False
 
-        inner = ctk.CTkFrame(card, fg_color="transparent")
-        inner.pack(fill="x", padx=16, pady=14)
+        # Top row: muted hint text + expand button
+        row = ctk.CTkFrame(calib_frame, fg_color="transparent")
+        row.pack(fill="x")
+
+        icon = load_icon("ic_calibration.png", size=(14, 14))
+        if icon:
+            ctk.CTkLabel(row, text="", image=icon, width=14).pack(side="left", padx=(0, 6))
+
+        ctk.CTkLabel(
+            row, text="First time? Run calibration to set up boost tracking.",
+            font=ctk.CTkFont(family="Segoe UI", size=11),
+            text_color=COLORS["text_muted"],
+            anchor="w",
+        ).pack(side="left", fill="x", expand=True)
+
+        self._calib_toggle_btn = ctk.CTkButton(
+            row, text="Setup",
+            font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
+            fg_color="transparent",
+            hover_color=COLORS["bg_card_hover"],
+            text_color=COLORS["accent_blue"],
+            width=60, height=28,
+            corner_radius=6,
+            command=lambda: self._toggle_calib_panel(calib_frame),
+        )
+        self._calib_toggle_btn.pack(side="right")
+
+        # Expandable panel (hidden by default)
+        self._calib_panel = ctk.CTkFrame(calib_frame, fg_color=COLORS["bg_card"],
+                                          corner_radius=10, border_width=1,
+                                          border_color=COLORS["border"])
+        # Don't pack yet — starts collapsed
+
+        panel_inner = ctk.CTkFrame(self._calib_panel, fg_color="transparent")
+        panel_inner.pack(fill="x", padx=14, pady=12)
 
         self.btn_calibrate = ctk.CTkButton(
-            inner,
-            text="  Run Calibration",
-            image=load_icon("ic_calibrate_btn.png", size=(18, 18)),
-            font=ctk.CTkFont(family="Segoe UI", size=13, weight="bold"),
+            panel_inner,
+            text="Run Calibration",
+            image=load_icon("ic_calibrate_btn.png", size=(16, 16)),
+            font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
             fg_color=COLORS["accent_blue"],
             hover_color=COLORS["accent_blue_dim"],
             text_color="#FFFFFF",
-            height=42,
-            corner_radius=10,
+            height=36,
+            corner_radius=8,
             command=self._on_calibrate,
         )
         self.btn_calibrate.pack(fill="x")
 
-        # Status label
         self.lbl_status = ctk.CTkLabel(
-            inner,
-            text="Status: Ready",
-            font=ctk.CTkFont(family="Segoe UI", size=12),
-            text_color=COLORS["accent_cyan"],
+            panel_inner,
+            text="Make sure you're in Freeplay with 0 boost.",
+            font=ctk.CTkFont(family="Segoe UI", size=11),
+            text_color=COLORS["text_muted"],
             anchor="w",
             wraplength=380,
             justify="left",
         )
-        self.lbl_status.pack(fill="x", pady=(10, 0))
+        self.lbl_status.pack(fill="x", pady=(8, 0))
+
+    def _toggle_calib_panel(self, parent_frame):
+        if self._calib_expanded:
+            self._calib_panel.pack_forget()
+            self._calib_toggle_btn.configure(text="Setup")
+        else:
+            self._calib_panel.pack(fill="x", pady=(8, 0))
+            self._calib_toggle_btn.configure(text="Hide")
+        self._calib_expanded = not self._calib_expanded
 
     def _on_calibrate(self):
         res = messagebox.askyesno(
