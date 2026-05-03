@@ -263,7 +263,7 @@ class AlphaBoostApp(ctk.CTk):
         self.cb = engine_callbacks
 
         self.title("Alpha Boost Engine")
-        self.geometry("440x770")
+        self.geometry("440x680")
         self.resizable(False, False)
         self.configure(fg_color=COLORS["bg_primary"])
         self.attributes("-topmost", True)
@@ -315,15 +315,10 @@ class AlphaBoostApp(ctk.CTk):
 
         title_block = ctk.CTkFrame(logo_row, fg_color="transparent")
         title_block.pack(side="left", fill="x", expand=True)
-        ctk.CTkLabel(title_block, text="Alpha Boost Engine",
+        ctk.CTkLabel(title_block, text="ALPHA BOOST ENGINE",
                      font=ctk.CTkFont(family="Segoe UI", size=18, weight="bold"),
-                     text_color=COLORS["text_primary"], anchor="w").pack(anchor="w")
-        ctk.CTkLabel(title_block, text="Rocket League Audio Enhancer",
-                     font=ctk.CTkFont(family="Segoe UI", size=10),
-                     text_color=COLORS["text_muted"], anchor="w").pack(anchor="w")
+                     text_color=COLORS["text_primary"], anchor="center").pack(anchor="center")
 
-        ctk.CTkFrame(header, height=2, fg_color="#E8B630", corner_radius=0
-                     ).pack(fill="x", pady=(10, 0))
 
     # ── Calibration (collapsible, at top) ─────────────────────────────────────
 
@@ -422,9 +417,14 @@ class AlphaBoostApp(ctk.CTk):
         inner.pack(fill="x", padx=14, pady=12)
 
         # ── Sub-header: Sound Profile ──
-        ctk.CTkLabel(inner, text="Sound Profile",
+        sp_header = ctk.CTkFrame(inner, fg_color="transparent")
+        sp_header.pack(fill="x", pady=(0, 5))
+        sp_icon = load_icon("ic_sound.png", size=(14, 14))
+        if sp_icon:
+            ctk.CTkLabel(sp_header, text="", image=sp_icon, width=14).pack(side="left", padx=(0, 5))
+        ctk.CTkLabel(sp_header, text="Sound Profile",
                      font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
-                     text_color=COLORS["text_primary"], anchor="w").pack(anchor="w", pady=(0, 5))
+                     text_color=COLORS["text_primary"], anchor="w").pack(side="left")
 
         profiles = {
             "Classic Original Sound": "classic",
@@ -449,28 +449,15 @@ class AlphaBoostApp(ctk.CTk):
         self.combo_profile.set(current_display)
         self.combo_profile.pack(fill="x")
 
-        # Shortcut chips — centered
-        shortcuts_outer = ctk.CTkFrame(inner, fg_color="transparent")
-        shortcuts_outer.pack(fill="x", pady=(6, 0))
-        shortcuts_hint = ctk.CTkFrame(shortcuts_outer, fg_color="transparent")
-        shortcuts_hint.pack(anchor="center")
-        for key, label in [("F1", "Classic"), ("F2", "Quiet Loop"), ("F3", "Low-RPM")]:
-            chip = ctk.CTkFrame(shortcuts_hint, fg_color=COLORS["bg_secondary"], corner_radius=5)
-            chip.pack(side="left", padx=2)
-            ctk.CTkLabel(chip, text=f" {key} ",
-                         font=ctk.CTkFont(family="Segoe UI", size=9, weight="bold"),
-                         text_color=COLORS["accent_blue"]).pack(side="left", padx=(5, 1), pady=2)
-            ctk.CTkLabel(chip, text=label,
-                         font=ctk.CTkFont(family="Segoe UI", size=9),
-                         text_color=COLORS["text_muted"]).pack(side="left", padx=(0, 5), pady=2)
-
-        # ── Divider between sub-sections ──
-        ctk.CTkFrame(inner, height=2, fg_color=COLORS["border"]).pack(fill="x", pady=10)
-
         # ── Sub-header: Audio Settings ──
-        ctk.CTkLabel(inner, text="Audio Settings",
+        as_header = ctk.CTkFrame(inner, fg_color="transparent")
+        as_header.pack(fill="x", pady=(25, 5))
+        as_icon = load_icon("ic_audio.png", size=(14, 14))
+        if as_icon:
+            ctk.CTkLabel(as_header, text="", image=as_icon, width=14).pack(side="left", padx=(0, 5))
+        ctk.CTkLabel(as_header, text="Audio Settings",
                      font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
-                     text_color=COLORS["text_primary"], anchor="w").pack(anchor="w", pady=(0, 6))
+                     text_color=COLORS["text_primary"], anchor="w").pack(side="left")
 
         self.slider_volume = SliderWithLabel(
             inner, label="Volume", from_=0, to=100,

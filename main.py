@@ -270,15 +270,6 @@ def start_calibration(status_callback):
     calib_thread.daemon = True
     calib_thread.start()
 
-def set_profile_from_shortcut(prof_code):
-    global SOUND_PROFILE
-    SOUND_PROFILE = prof_code
-    user_settings["sound_profile"] = prof_code
-    save_settings()
-    audio.load_sounds(prof_code)
-    if app:
-        app.after(0, lambda: app.set_profile_display(prof_code))
-
 def on_press(key):
     global FREEPLAY_MODE, SHORTCUTS_ENABLED
     if not SHORTCUTS_ENABLED:
@@ -288,12 +279,6 @@ def on_press(key):
             toggle_freeplay()
         elif key == keyboard.Key.f5:
             toggle_active()
-        elif key == keyboard.Key.f1:
-            set_profile_from_shortcut("classic")
-        elif key == keyboard.Key.f2:
-            set_profile_from_shortcut("quiet_loop")
-        elif key == keyboard.Key.f3:
-            set_profile_from_shortcut("low_rpm")
     except AttributeError:
         pass
 
