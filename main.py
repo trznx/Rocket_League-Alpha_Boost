@@ -5,21 +5,14 @@ import time
 import threading
 import mss
 import cv2
-import mss
 import numpy as np
-import time
-import pygame
-import threading
-from pynput import mouse, keyboard
 import sys
-import os
 import json
 import ctypes
-from tkinter import messagebox
 from audio_engine import AlphaBoostAudioEngine
 import kalibrasyon
-import tkinter as tk
-from tkinter import ttk
+
+# ─── WINDOWS STRUCTURES ──────────────────────────────────────────────────────
 
 class POINT(ctypes.Structure):
     _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
@@ -37,7 +30,7 @@ def is_cursor_visible():
     # flags == 1 means cursor is showing
     return info.flags == 1
 
-# --- AYARLAR VE KAYIT ---
+# ─── SETTINGS & PERSISTENCE ──────────────────────────────────────────────────
 SETTINGS_FILE = "user_settings.json"
 
 default_settings = {
@@ -73,7 +66,8 @@ FREEPLAY_MODE = user_settings["freeplay_mode"]
 IS_ACTIVE = user_settings["is_active"]
 SHORTCUTS_ENABLED = user_settings.get("shortcuts_enabled", True)
 
-# --- KALİBRASYON VERİLERİNİ YÜKLE ---
+# ─── CALIBRATION DATA ────────────────────────────────────────────────────────
+
 if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
     print("Warning: config.json or template_0.png missing. Please run calibration from GUI.")
     BOOST_REGION = {"left": 0, "top": 0, "width": 100, "height": 100, "threshold": 128}
@@ -94,10 +88,10 @@ else:
     if np.mean(template_0) == 0:
         print("HATA: template_0.png tamamen SİYAH (boş)! Kalibrasyon sırasında '0' rakamı düzgün alınamamış.")
 
-# --- SES MOTORU BAŞLATMA ---
+# ─── AUDIO ENGINE INIT ───────────────────────────────────────────────────────
 audio = AlphaBoostAudioEngine(profile=SOUND_PROFILE)
 
-# --- FİZİK VE DURUM DEĞİŞKENLERİ ---
+# ─── PHYSICS & STATE VARIABLES ───────────────────────────────────────────────
 is_mouse_down = False
 estimated_speed = 0.0
 MAX_SPEED = 2200.0
@@ -219,12 +213,71 @@ def on_click(x, y, button, pressed):
         if pressed:
             mouse_down_time = time.time()
 
-def set_profile_from_shortcut(prof_name):
-    try:
-        combo_profile.set(prof_name)
-        on_profile_change(None)
-    except Exception:
-        pass
+# ─── GUI CALLBACK FUNCTIONS ──────────────────────────────────────────────────
+# These are called by the interface when the user interacts with the GUI.
+
+app = None  # Will be set after GUI is created
+
+def toggle_freeplay():
+    global FREEPLAY_MODE
+    FREEPLAY_MODE = not FREEPLAY_MODE
+    user_settings["freeplay_mode"] = FREEPLAY_MODE
+    save_settings()
+    if app:
+        app.update_freeplay_state(FREEPLAY_MODE)
+
+def toggle_active():
+    global IS_ACTIVE
+    IS_ACTIVE = not IS_ACTIVE
+    user_settings["is_active"] = IS_ACTIVE
+    save_settings()
+    if app:
+        app.update_active_state(IS_ACTIVE)
+
+def toggle_shortcuts():
+    global SHORTCUTS_ENABLED
+    SHORTCUTS_ENABLED = not SHORTCUTS_ENABLED
+    user_settings["shortcuts_enabled"] = SHORTCUTS_ENABLED
+    save_settings()
+    if app:
+        app.update_shortcuts_state(SHORTCUTS_ENABLED)
+
+def set_profile(profile_code):
+    global SOUND_PROFILE
+    SOUND_PROFILE = profile_code
+    user_settings["sound_profile"] = profile_code
+    save_settings()
+    audio.load_sounds(profile_code)
+
+def set_volume(val):
+    global SES_SEVIYESI
+    SES_SEVIYESI = float(val)
+    user_settings["volume"] = SES_SEVIYESI
+    save_settings()
+    audio.set_volume(SES_SEVIYESI)
+
+def set_delay(val):
+    global AUDIO_DELAY_MS
+    AUDIO_DELAY_MS = int(val)
+    user_settings["audio_delay_ms"] = AUDIO_DELAY_MS
+    save_settings()
+
+def start_calibration(status_callback):
+    calib_thread = threading.Thread(
+        target=kalibrasyon.run_calibration,
+        args=(status_callback,)
+    )
+    calib_thread.daemon = True
+    calib_thread.start()
+
+def set_profile_from_shortcut(prof_code):
+    global SOUND_PROFILE
+    SOUND_PROFILE = prof_code
+    user_settings["sound_profile"] = prof_code
+    save_settings()
+    audio.load_sounds(prof_code)
+    if app:
+        app.after(0, lambda: app.set_profile_display(prof_code))
 
 def on_press(key):
     global FREEPLAY_MODE, SHORTCUTS_ENABLED
@@ -236,15 +289,17 @@ def on_press(key):
         elif key == keyboard.Key.f5:
             toggle_active()
         elif key == keyboard.Key.f1:
-            set_profile_from_shortcut("Classic Original Sound")
+            set_profile_from_shortcut("classic")
         elif key == keyboard.Key.f2:
-            set_profile_from_shortcut("Quiet Loop Sound (Recommended)")
+            set_profile_from_shortcut("quiet_loop")
         elif key == keyboard.Key.f3:
-            set_profile_from_shortcut("Low-RPM Start Sound")
+            set_profile_from_shortcut("low_rpm")
     except AttributeError:
         pass
 
-# Takip thread'ini başlat
+# ─── START BACKGROUND THREADS ────────────────────────────────────────────────
+
+# Monitor thread
 threading.Thread(target=monitor_logic, daemon=True).start()
 
 print("\n" + "="*50)
@@ -255,64 +310,7 @@ print("  Çoklu Kanal Hissiyatı (Feathering): AÇIK")
 print("  Sınırsız Boost (Freeplay) Modu için: F4 tuşuna basın!")
 print("="*50)
 
-# Mouse ve Keyboard'u aynı anda dinle
-
-def toggle_freeplay():
-    global FREEPLAY_MODE
-    FREEPLAY_MODE = not FREEPLAY_MODE
-    user_settings["freeplay_mode"] = FREEPLAY_MODE
-    save_settings()
-    btn_freeplay.config(text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}")
-
-def toggle_active():
-    global IS_ACTIVE
-    IS_ACTIVE = not IS_ACTIVE
-    user_settings["is_active"] = IS_ACTIVE
-    save_settings()
-    btn_active.config(text=f"Alpha Boost (F5): {'ENABLED' if IS_ACTIVE else 'DISABLED'}")
-
-def toggle_shortcuts():
-    global SHORTCUTS_ENABLED
-    SHORTCUTS_ENABLED = not SHORTCUTS_ENABLED
-    user_settings["shortcuts_enabled"] = SHORTCUTS_ENABLED
-    save_settings()
-    btn_shortcuts.config(text=f"Shortcuts: {'ENABLED' if SHORTCUTS_ENABLED else 'DISABLED'}")
-
-
-def on_profile_change(event):
-    global SOUND_PROFILE
-    val = combo_profile.get()
-    if val == "Classic Original Sound":
-        prof_code = "classic"
-    elif val == "Low-RPM Start Sound":
-        prof_code = "low_rpm"
-    elif val == "Alpha Boost":
-        prof_code = "alpha_boost"
-    else:
-        prof_code = "quiet_loop"
-        
-    SOUND_PROFILE = prof_code
-    user_settings["sound_profile"] = prof_code
-    save_settings()
-    audio.load_sounds(prof_code)
-
-
-def on_delay_change(val):
-    global AUDIO_DELAY_MS
-    AUDIO_DELAY_MS = int(float(val))
-    lbl_delay.config(text=f"Audio Start Delay: {AUDIO_DELAY_MS} ms")
-    user_settings["audio_delay_ms"] = AUDIO_DELAY_MS
-    save_settings()
-
-def on_volume_change(val):
-    global SES_SEVIYESI
-    SES_SEVIYESI = float(val)
-    user_settings["volume"] = SES_SEVIYESI
-    save_settings()
-    audio.set_volume(SES_SEVIYESI)
-    lbl_volume.config(text=f"Volume Level: {int(SES_SEVIYESI*100)}%")
-
-# Dinleyici Threadleri Başlat
+# Mouse and Keyboard listeners
 mouse_listener = mouse.Listener(on_click=on_click)
 mouse_listener.start()
 
@@ -323,104 +321,25 @@ monitor_thread = threading.Thread(target=monitor_logic)
 monitor_thread.daemon = True
 monitor_thread.start()
 
-# --- TKINTER ARAYÜZ (GUI) ---
+# ─── LAUNCH GUI ──────────────────────────────────────────────────────────────
 
-def on_calibration_callback(msg):
-    root.after(0, lambda: lbl_status.config(text=msg))
+from interface import AlphaBoostApp
 
-def start_calibration():
-    res = messagebox.askyesno("Warning", "Are you sure you want to recalibrate?\n\nMake sure you are in Freeplay, your boost is at 0, and the game is Borderless/Windowed.")
-    if not res: return
-    
-    lbl_status.config(text="Calibration starting...")
-    calib_thread = threading.Thread(target=kalibrasyon.run_calibration, args=(on_calibration_callback,))
-    calib_thread.daemon = True
-    calib_thread.start()
+engine_callbacks = {
+    "toggle_active": toggle_active,
+    "toggle_freeplay": toggle_freeplay,
+    "toggle_shortcuts": toggle_shortcuts,
+    "get_active": lambda: IS_ACTIVE,
+    "get_freeplay": lambda: FREEPLAY_MODE,
+    "get_shortcuts": lambda: SHORTCUTS_ENABLED,
+    "get_profile": lambda: SOUND_PROFILE,
+    "set_profile": set_profile,
+    "get_volume": lambda: SES_SEVIYESI,
+    "set_volume": set_volume,
+    "get_delay": lambda: AUDIO_DELAY_MS,
+    "set_delay": set_delay,
+    "start_calibration": start_calibration,
+}
 
-import ctypes
-try:
-    myappid = 'trznx.alphaboost.engine.1.0'
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-except Exception:
-    pass
-
-root = tk.Tk()
-root.title("Alpha Boost Engine")
-root.geometry("400x600")
-root.resizable(False, False)
-root.attributes("-topmost", True)
-try:
-    import sys
-    icon_path = os.path.join(sys._MEIPASS, "icon", "app_icon.ico") if hasattr(sys, "_MEIPASS") else os.path.join("icon", "app_icon.ico")
-    if os.path.exists(icon_path):
-        root.iconbitmap(icon_path)
-except Exception:
-    pass
-
-style = ttk.Style()
-style.theme_use('clam')
-
-frame = ttk.Frame(root, padding="15")
-frame.pack(fill=tk.BOTH, expand=True)
-
-ttk.Label(frame, text="🚀 Alpha Boost Engine", font=("Arial", 16, "bold")).pack(pady=5)
-
-# Controls
-frame_controls = ttk.LabelFrame(frame, text="Controls", padding="10")
-frame_controls.pack(fill=tk.X, pady=5)
-
-btn_active = ttk.Button(frame_controls, text=f"Alpha Boost (F5): {'ENABLED' if IS_ACTIVE else 'DISABLED'}", command=toggle_active)
-btn_active.pack(fill=tk.X, pady=2)
-
-btn_shortcuts = ttk.Button(frame_controls, text=f"Shortcuts: {'ENABLED' if SHORTCUTS_ENABLED else 'DISABLED'}", command=toggle_shortcuts)
-btn_shortcuts.pack(fill=tk.X, pady=2)
-
-btn_freeplay = ttk.Button(frame_controls, text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}", command=toggle_freeplay)
-btn_freeplay.pack(fill=tk.X, pady=2)
-
-lbl_profile = ttk.Label(frame_controls, text="Sound Profile:")
-lbl_profile.pack(pady=(5,0))
-
-combo_profile = ttk.Combobox(frame_controls, values=["Alpha Boost", "Classic Original Sound", "Quiet Loop Sound (Recommended)", "Low-RPM Start Sound"], state="readonly")
-if SOUND_PROFILE == "classic":
-    combo_profile.set("Classic Original Sound")
-elif SOUND_PROFILE == "low_rpm":
-    combo_profile.set("Low-RPM Start Sound")
-elif SOUND_PROFILE == "alpha_boost":
-    combo_profile.set("Alpha Boost")
-else:
-    combo_profile.set("Quiet Loop Sound (Recommended)")
-combo_profile.bind("<<ComboboxSelected>>", on_profile_change)
-combo_profile.pack(fill=tk.X, pady=2)
-
-
-lbl_volume = ttk.Label(frame_controls, text=f"Volume Level: {int(SES_SEVIYESI*100)}%")
-lbl_volume.pack(pady=(5,0))
-slider_volume = ttk.Scale(frame_controls, from_=0.0, to=1.0, orient='horizontal', command=on_volume_change)
-slider_volume.set(SES_SEVIYESI)
-slider_volume.pack(fill=tk.X, pady=2)
-
-lbl_delay = ttk.Label(frame_controls, text=f"Audio Start Delay: {AUDIO_DELAY_MS} ms")
-lbl_delay.pack(pady=(5,0))
-slider_delay = ttk.Scale(frame_controls, from_=0, to=50, orient='horizontal', command=on_delay_change)
-slider_delay.set(AUDIO_DELAY_MS)
-slider_delay.pack(fill=tk.X, pady=2)
-
-# Calibration Section
-frame_calib = ttk.LabelFrame(frame, text="Setup", padding="10")
-frame_calib.pack(fill=tk.X, pady=5)
-
-btn_calibrate = ttk.Button(frame_calib, text="🔧 Run Calibration", command=start_calibration)
-btn_calibrate.pack(fill=tk.X, pady=2)
-
-lbl_status = ttk.Label(frame_calib, text="Status: Ready", foreground="blue", wraplength=330, justify="center")
-lbl_status.pack(pady=5)
-
-# Info/Tips Section
-frame_tips = ttk.LabelFrame(frame, text="Tips & Info", padding="10")
-frame_tips.pack(fill=tk.X, pady=5)
-
-tips_text = "• Freeplay Mode: Enable ONLY when using Unlimited Boost.\n\n• Note: Pressing boost during goal replays or countdowns may trigger short sounds. This is normal.\n\n• Calibration: Ensure game is Borderless/Windowed."
-ttk.Label(frame_tips, text=tips_text, wraplength=340, font=("Arial", 8)).pack(fill=tk.X)
-
-root.mainloop()
+app = AlphaBoostApp(engine_callbacks)
+app.mainloop()
