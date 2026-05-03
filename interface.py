@@ -242,6 +242,9 @@ class CollapsibleSection(ctk.CTkFrame):
             self._expanded = True
 
     def _toggle(self):
+        # Freeze the window to prevent flicker during layout changes
+        root = self.winfo_toplevel()
+        root.update_idletasks()
         if self._expanded:
             self._panel.pack_forget()
             self._toggle_btn.configure(text=self._btn_show)
@@ -249,6 +252,7 @@ class CollapsibleSection(ctk.CTkFrame):
             self._panel.pack(fill="x", pady=(6, 0))
             self._toggle_btn.configure(text=self._btn_hide)
         self._expanded = not self._expanded
+        root.update_idletasks()
 
 
 # ─── MAIN APPLICATION WINDOW ─────────────────────────────────────────────────
@@ -259,9 +263,8 @@ class AlphaBoostApp(ctk.CTk):
         self.cb = engine_callbacks
 
         self.title("Alpha Boost Engine")
-        self.geometry("460x660")
-        self.minsize(440, 580)
-        self.resizable(True, True)
+        self.geometry("440x770")
+        self.resizable(False, False)
         self.configure(fg_color=COLORS["bg_primary"])
         self.attributes("-topmost", True)
 
@@ -319,7 +322,7 @@ class AlphaBoostApp(ctk.CTk):
                      font=ctk.CTkFont(family="Segoe UI", size=10),
                      text_color=COLORS["text_muted"], anchor="w").pack(anchor="w")
 
-        ctk.CTkFrame(header, height=2, fg_color=COLORS["accent_blue"], corner_radius=1
+        ctk.CTkFrame(header, height=2, fg_color="#E8B630", corner_radius=0
                      ).pack(fill="x", pady=(10, 0))
 
     # ── Calibration (collapsible, at top) ─────────────────────────────────────
@@ -329,7 +332,7 @@ class AlphaBoostApp(ctk.CTk):
             parent,
             hint_text="First time? Run calibration to set up boost tracking.",
             btn_show="Setup", btn_hide="Hide",
-            icon_name="ic_calibration.png", start_expanded=True)
+            icon_name="ic_calibration.png", start_expanded=False)
         self._calib.pack(fill="x", pady=(0, 10))
 
         p = self._calib.panel_inner
@@ -418,8 +421,8 @@ class AlphaBoostApp(ctk.CTk):
         inner = ctk.CTkFrame(card, fg_color="transparent")
         inner.pack(fill="x", padx=14, pady=12)
 
-        # ── Sub-header: Profil Seçimi ──
-        ctk.CTkLabel(inner, text="Profil Seçimi",
+        # ── Sub-header: Sound Profile ──
+        ctk.CTkLabel(inner, text="Sound Profile",
                      font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
                      text_color=COLORS["text_primary"], anchor="w").pack(anchor="w", pady=(0, 5))
 
@@ -461,8 +464,8 @@ class AlphaBoostApp(ctk.CTk):
                          font=ctk.CTkFont(family="Segoe UI", size=9),
                          text_color=COLORS["text_muted"]).pack(side="left", padx=(0, 5), pady=2)
 
-        # ── Divider ──
-        ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=10)
+        # ── Divider between sub-sections ──
+        ctk.CTkFrame(inner, height=2, fg_color=COLORS["border"]).pack(fill="x", pady=10)
 
         # ── Sub-header: Audio Settings ──
         ctk.CTkLabel(inner, text="Audio Settings",
@@ -530,7 +533,7 @@ class AlphaBoostApp(ctk.CTk):
     def _build_footer(self, parent):
         footer = ctk.CTkFrame(parent, fg_color="transparent")
         footer.pack(fill="x", pady=(2, 0))
-        ctk.CTkLabel(footer, text="Alpha Boost Engine v2.0  •  by trznx",
+        ctk.CTkLabel(footer, text="Alpha Boost Engine v1.1.0  •  by trznx",
                      font=ctk.CTkFont(family="Segoe UI", size=9),
                      text_color=COLORS["text_muted"]).pack()
 
