@@ -27,7 +27,7 @@ The use of the legendary Alpha Boost (Gold Rush) among players has unfortunately
 ### 💻 Interface
 Interface Overview: Get a quick and clear understanding of the program's interface and its features at a glance.
 
-<img width="394" height="627" alt="image" src="https://github.com/user-attachments/assets/f5d85b49-a980-44e1-bd03-2ceec318a1bc" />
+<img width="434" height="706" alt="image" src="https://github.com/user-attachments/assets/d9f357b0-9e71-4a2c-abd1-479c7647852b" />
 
 ---
 
@@ -83,8 +83,6 @@ You can quickly and practically install the program by following these **"3 Step
 ⚠️ **WARNING 3:** Your **Boost** bar must be visible for the program to work correctly.
 
 > Once the installation is complete, your project directory should have the following structure:
-<img width="615" height="182" alt="image" src="https://github.com/user-attachments/assets/f61bcb3c-df56-41d5-acac-8a78111a5a6b" />
-
 
 ---
 
@@ -158,9 +156,10 @@ Oyuncular arasında efsaneleşen Alpha Boost (Gold Rush) kullanımı ne yazık k
 ### 💻 Arayüz
 Programın arayüzü hakkında hızlı ve kolay bir şekilde bilgi edinebilirsiniz.
 
-<img width="394" height="627" alt="image" src="https://github.com/user-attachments/assets/f5d85b49-a980-44e1-bd03-2ceec318a1bc" />
+<img width="434" height="706" alt="image" src="https://github.com/user-attachments/assets/d9f357b0-9e71-4a2c-abd1-479c7647852b" />
 
 ---
+
 
 > **Önemli Not:** Bu harici bir ses simülatörüdür. Oyunun iç koduna müdahale edemediğimiz için BakkesMod'daki gibi %100 kusursuz bir senkronizasyon beklememelisiniz. Amacımız, profesyonel bir ses katmanı olarak Alpha Boost hissiyatını yaşatmaktır.
 
