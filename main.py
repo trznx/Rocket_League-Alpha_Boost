@@ -45,7 +45,8 @@ default_settings = {
     "sound_profile": "quiet_loop",
     "audio_delay_ms": 0,
     "freeplay_mode": False,
-    "is_active": True
+    "is_active": True,
+    "shortcuts_enabled": True
 }
 
 if os.path.exists(SETTINGS_FILE):
@@ -70,6 +71,7 @@ SOUND_PROFILE = user_settings.get("sound_profile", "classic")
 AUDIO_DELAY_MS = user_settings.get("audio_delay_ms", 40)
 FREEPLAY_MODE = user_settings["freeplay_mode"]
 IS_ACTIVE = user_settings["is_active"]
+SHORTCUTS_ENABLED = user_settings.get("shortcuts_enabled", True)
 
 # --- KALİBRASYON VERİLERİNİ YÜKLE ---
 if not os.path.exists("config.json") or not os.path.exists("template_0.png"):
@@ -217,17 +219,28 @@ def on_click(x, y, button, pressed):
         if pressed:
             mouse_down_time = time.time()
 
+def set_profile_from_shortcut(prof_name):
+    try:
+        combo_profile.set(prof_name)
+        on_profile_change(None)
+    except Exception:
+        pass
+
 def on_press(key):
-    global FREEPLAY_MODE
+    global FREEPLAY_MODE, SHORTCUTS_ENABLED
+    if not SHORTCUTS_ENABLED:
+        return
     try:
         if key == keyboard.Key.f4:
-            FREEPLAY_MODE = not FREEPLAY_MODE
-            user_settings["freeplay_mode"] = FREEPLAY_MODE
-            save_settings()
-            try:
-                btn_freeplay.config(text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}")
-            except:
-                pass
+            toggle_freeplay()
+        elif key == keyboard.Key.f5:
+            toggle_active()
+        elif key == keyboard.Key.f1:
+            set_profile_from_shortcut("Classic Original Sound")
+        elif key == keyboard.Key.f2:
+            set_profile_from_shortcut("Quiet Loop Sound (Recommended)")
+        elif key == keyboard.Key.f3:
+            set_profile_from_shortcut("Low-RPM Start Sound")
     except AttributeError:
         pass
 
@@ -256,7 +269,14 @@ def toggle_active():
     IS_ACTIVE = not IS_ACTIVE
     user_settings["is_active"] = IS_ACTIVE
     save_settings()
-    btn_active.config(text=f"Alpha Boost: {'ENABLED' if IS_ACTIVE else 'DISABLED'}")
+    btn_active.config(text=f"Alpha Boost (F5): {'ENABLED' if IS_ACTIVE else 'DISABLED'}")
+
+def toggle_shortcuts():
+    global SHORTCUTS_ENABLED
+    SHORTCUTS_ENABLED = not SHORTCUTS_ENABLED
+    user_settings["shortcuts_enabled"] = SHORTCUTS_ENABLED
+    save_settings()
+    btn_shortcuts.config(text=f"Shortcuts: {'ENABLED' if SHORTCUTS_ENABLED else 'DISABLED'}")
 
 
 def on_profile_change(event):
@@ -266,6 +286,8 @@ def on_profile_change(event):
         prof_code = "classic"
     elif val == "Low-RPM Start Sound":
         prof_code = "low_rpm"
+    elif val == "Alpha Boost":
+        prof_code = "alpha_boost"
     else:
         prof_code = "quiet_loop"
         
@@ -347,8 +369,11 @@ ttk.Label(frame, text="🚀 Alpha Boost Engine", font=("Arial", 16, "bold")).pac
 frame_controls = ttk.LabelFrame(frame, text="Controls", padding="10")
 frame_controls.pack(fill=tk.X, pady=5)
 
-btn_active = ttk.Button(frame_controls, text=f"Alpha Boost: {'ENABLED' if IS_ACTIVE else 'DISABLED'}", command=toggle_active)
+btn_active = ttk.Button(frame_controls, text=f"Alpha Boost (F5): {'ENABLED' if IS_ACTIVE else 'DISABLED'}", command=toggle_active)
 btn_active.pack(fill=tk.X, pady=2)
+
+btn_shortcuts = ttk.Button(frame_controls, text=f"Shortcuts: {'ENABLED' if SHORTCUTS_ENABLED else 'DISABLED'}", command=toggle_shortcuts)
+btn_shortcuts.pack(fill=tk.X, pady=2)
 
 btn_freeplay = ttk.Button(frame_controls, text=f"Freeplay Mode (F4): {'ENABLED' if FREEPLAY_MODE else 'DISABLED'}", command=toggle_freeplay)
 btn_freeplay.pack(fill=tk.X, pady=2)
@@ -356,11 +381,13 @@ btn_freeplay.pack(fill=tk.X, pady=2)
 lbl_profile = ttk.Label(frame_controls, text="Sound Profile:")
 lbl_profile.pack(pady=(5,0))
 
-combo_profile = ttk.Combobox(frame_controls, values=["Classic Original Sound", "Quiet Loop Sound (Recommended)", "Low-RPM Start Sound"], state="readonly")
+combo_profile = ttk.Combobox(frame_controls, values=["Alpha Boost", "Classic Original Sound", "Quiet Loop Sound (Recommended)", "Low-RPM Start Sound"], state="readonly")
 if SOUND_PROFILE == "classic":
     combo_profile.set("Classic Original Sound")
 elif SOUND_PROFILE == "low_rpm":
     combo_profile.set("Low-RPM Start Sound")
+elif SOUND_PROFILE == "alpha_boost":
+    combo_profile.set("Alpha Boost")
 else:
     combo_profile.set("Quiet Loop Sound (Recommended)")
 combo_profile.bind("<<ComboboxSelected>>", on_profile_change)

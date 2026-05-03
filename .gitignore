@@ -19,6 +19,7 @@ scratch/
 _archive/
 test_sounds/
 tools/
+docs/
 
 # Medya / İşlenmiş Sesler
 *.mp4

@@ -10,7 +10,7 @@ class AlphaBoostAudioEngine:
     
     def __init__(self, channels=16, profile="classic"):
         pygame.mixer.pre_init(44100, -16, 2, 256)
-        pygame.init()
+        pygame.mixer.init()
         pygame.mixer.set_num_channels(channels)
         
         self.ch_loops = [pygame.mixer.Channel(i) for i in range(8)]
