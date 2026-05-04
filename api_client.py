@@ -1,78 +1,75 @@
 """
-Alpha Boost Engine - WebSocket API Client
-==========================================
-Rocket League'in yerel WebSocket API'sine (ws://localhost:49123) baglanir.
-Saniyede 120 paket hizinda gelen JSON verilerinden:
-  - Speed (v): Arabanin anlik hizi (uu/s)
-  - bBoosting: Boost tusuna basilip basilmadigi (True/False)
-bilgilerini okur ve thread-safe bir sekilde paylasir.
+Alpha Boost Engine - TCP API Client
+=====================================
+Rocket League'in RESMI Stats API'sine (TCP localhost:49123) baglanir.
+Bu bir WebSocket DEGIL, ham TCP soketidir!
 
-Baglanti koparsa sessizce yeniden dener, hata vermez.
+Oyun sunucu gorevindedir ve port 49123 uzerinden JSON verisi yayinlar.
+Bizim programimiz client olarak bu porta baglanir.
+
+Aktivasyon:
+  TAGame/Config/DefaultStatsAPI.ini -> PacketSendRate=120, Port=49123
 """
 
 import threading
 import json
 import time
-
-try:
-    import websocket
-except ImportError:
-    print("  [API] HATA: 'websocket-client' kutuphanesi bulunamadi!")
-    print("  [API] Kurulum: pip install websocket-client")
-    websocket = None
+import socket
 
 
 class RocketLeagueAPI:
-    """Rocket League WebSocket API istemcisi.
+    """Rocket League resmi Stats API istemcisi (TCP).
     
     Kullanim:
         api = RocketLeagueAPI()
-        api.start()  # Arka plan thread'i baslatir
+        api.start()
         
-        # Ana dongu icinde:
         speed = api.speed           # Anlik hiz (float, uu/s)
         boosting = api.is_boosting  # Boost basili mi (bool)
         connected = api.connected   # API'ye bagli mi (bool)
     """
     
-    WS_URL = "ws://localhost:49123"
-    RECONNECT_DELAY = 2.0  # Baglanti koparsa kac saniye bekleyip tekrar denesin
+    HOST = "127.0.0.1"
+    PORT = 49123
+    RECONNECT_DELAY = 2.0
+    BUFFER_SIZE = 4096
     
     def __init__(self):
-        # Thread-safe paylasilacak veriler
         self._lock = threading.Lock()
         self._speed = 0.0
         self._is_boosting = False
         self._connected = False
+        self._last_error = ""
+        self._packet_count = 0
         
-        # Arka plan thread'i
         self._thread = None
         self._running = False
     
-    # ─── PUBLIC PROPERTIES (Thread-Safe) ─────────────────────────────────────
+    # ─── PUBLIC PROPERTIES ───────────────────────────────────────────────────
     
     @property
     def speed(self) -> float:
-        """Arabanin anlik hizi (uu/s). API baglantisindan okunur."""
         with self._lock:
             return self._speed
     
     @property
     def is_boosting(self) -> bool:
-        """Boost tusu basili mi?"""
         with self._lock:
             return self._is_boosting
     
     @property
     def connected(self) -> bool:
-        """WebSocket API'sine bagli mi?"""
         with self._lock:
             return self._connected
+    
+    @property
+    def last_error(self) -> str:
+        with self._lock:
+            return self._last_error
     
     # ─── LIFECYCLE ───────────────────────────────────────────────────────────
     
     def start(self):
-        """Arka plan thread'ini baslatir. Birden fazla kez cagirilabilir (guvenli)."""
         if self._thread is not None and self._thread.is_alive():
             return
         self._running = True
@@ -80,7 +77,6 @@ class RocketLeagueAPI:
         self._thread.start()
     
     def stop(self):
-        """Arka plan thread'ini durdurur."""
         self._running = False
         with self._lock:
             self._speed = 0.0
@@ -90,68 +86,162 @@ class RocketLeagueAPI:
     # ─── INTERNAL ────────────────────────────────────────────────────────────
     
     def _connection_loop(self):
-        """Surekli baglanti deneyen ana dongu. Kopmada otomatik yeniden baglanir."""
+        """Ham TCP baglantisi ile oyundan veri okur."""
+        retry_count = 0
+        
         while self._running:
+            sock = None
             try:
-                ws = websocket.WebSocket()
-                ws.settimeout(5.0)
-                ws.connect(self.WS_URL)
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(5.0)
+                sock.connect((self.HOST, self.PORT))
                 
                 with self._lock:
                     self._connected = True
-                print(f"  [API] Rocket League'e basariyla baglandi! ({self.WS_URL})")
+                    self._last_error = ""
+                    self._packet_count = 0
+                retry_count = 0
+                print(f"  [API] Rocket League'e baglandi! (TCP {self.HOST}:{self.PORT})", flush=True)
                 
-                # Veri okuma dongusu
+                # Veri tamponu - TCP parcali veri gonderebilir
+                buffer = ""
+                
                 while self._running:
                     try:
-                        raw = ws.recv()
-                        if not raw:
+                        data = sock.recv(self.BUFFER_SIZE)
+                        if not data:
+                            print("  [API] Baglanti kapandi (bos veri)", flush=True)
                             break
-                        self._parse_packet(raw)
-                    except websocket.WebSocketTimeoutException:
-                        # Timeout oldu ama baglanti hala acik olabilir
+                        
+                        buffer += data.decode("utf-8", errors="replace")
+                        
+                        # JSON nesnelerini ayikla
+                        # TCP akisinda birden fazla JSON nesnesi art arda gelebilir
+                        while buffer:
+                            buffer = buffer.lstrip()
+                            if not buffer:
+                                break
+                            
+                            # Ilk JSON nesnesini bul
+                            if buffer[0] == '{':
+                                depth = 0
+                                end_idx = -1
+                                in_string = False
+                                escape = False
+                                
+                                for idx, ch in enumerate(buffer):
+                                    if escape:
+                                        escape = False
+                                        continue
+                                    if ch == '\\':
+                                        escape = True
+                                        continue
+                                    if ch == '"':
+                                        in_string = not in_string
+                                        continue
+                                    if in_string:
+                                        continue
+                                    if ch == '{':
+                                        depth += 1
+                                    elif ch == '}':
+                                        depth -= 1
+                                        if depth == 0:
+                                            end_idx = idx
+                                            break
+                                
+                                if end_idx >= 0:
+                                    json_str = buffer[:end_idx + 1]
+                                    buffer = buffer[end_idx + 1:]
+                                    self._parse_packet(json_str)
+                                else:
+                                    # Henuz tam JSON gelmedi, daha fazla veri bekle
+                                    break
+                            else:
+                                # JSON olmayan karakter, atla
+                                buffer = buffer[1:]
+                                
+                    except socket.timeout:
+                        # Timeout oldu ama baglanti hala acik
                         continue
-                    except (websocket.WebSocketConnectionClosedException, ConnectionError):
+                    except (ConnectionError, OSError):
+                        print("  [API] Baglanti koptu", flush=True)
                         break
                         
+            except ConnectionRefusedError:
+                if retry_count == 0:
+                    print(f"  [API] Baglanti reddedildi - Oyun acik mi? DefaultStatsAPI.ini ayarli mi?", flush=True)
+                    print(f"  [API] Kontrol: PacketSendRate=120, Port=49123 olmali", flush=True)
+                with self._lock:
+                    self._last_error = "Connection refused"
+                    
+            except socket.timeout:
+                if retry_count == 0:
+                    print(f"  [API] Baglanti zaman asimina ugradi", flush=True)
+                with self._lock:
+                    self._last_error = "Timeout"
+                    
+            except OSError as e:
+                if retry_count == 0:
+                    print(f"  [API] OS Hatasi: {e}", flush=True)
+                with self._lock:
+                    self._last_error = f"OS: {e}"
+                    
             except Exception as e:
-                # Baglanti kurulamadi veya koptu
-                pass
+                if retry_count == 0:
+                    print(f"  [API] Beklenmeyen hata: {type(e).__name__}: {e}", flush=True)
+                with self._lock:
+                    self._last_error = f"{type(e).__name__}: {e}"
+                    
             finally:
                 with self._lock:
                     self._connected = False
                     self._speed = 0.0
                     self._is_boosting = False
                 
-                try:
-                    ws.close()
-                except Exception:
-                    pass
+                if sock is not None:
+                    try:
+                        sock.close()
+                    except Exception:
+                        pass
             
-            # Yeniden baglanmadan once bekle
+            retry_count += 1
             if self._running:
                 time.sleep(self.RECONNECT_DELAY)
     
     def _parse_packet(self, raw: str):
-        """Gelen JSON paketini cozumler ve verileri gunceller.
+        """Gelen JSON paketini cozumler.
         
-        Beklenen format ornegi:
-        {"Speed": 1542.3, "bBoosting": true, ...}
-        
-        Not: API'nin gonderdigi tam JSON yapisina gore
-        alan isimleri burada ayarlanmalidir.
+        Beklenen formatlar:
+        1) {"Event": "UpdateState", "Data": {"Speed": ..., "Boost": ..., "bBoosting": ...}}
+        2) {"Speed": ..., "Boost": ..., "bBoosting": ...}
         """
         try:
-            data = json.loads(raw)
+            packet = json.loads(raw)
             
-            # API'den gelen alan adlari (bunlar API'nin gercek yapisina gore degisebilir)
-            speed = float(data.get("Speed", data.get("speed", data.get("v", 0.0))))
-            boosting = bool(data.get("bBoosting", data.get("boosting", data.get("isBoosting", False))))
+            # Rocket League resmi API: veriler "Data" anahtarinin icinde olabilir
+            if isinstance(packet, dict) and "Data" in packet:
+                data = packet["Data"]
+            else:
+                data = packet
+            
+            if not isinstance(data, dict):
+                return
+            
+            # Hiz ve boost bilgisini al
+            speed = float(data.get("Speed", data.get("speed", 0.0)))
+            boosting = bool(data.get("bBoosting", data.get("boosting", False)))
             
             with self._lock:
                 self._speed = speed
                 self._is_boosting = boosting
+                self._packet_count += 1
+            
+            # Ilk basarili pakette bilgi ver
+            if self._packet_count == 1:
+                print(f"  [API] Ilk veri paketi alindi! Speed={speed:.1f}, Boosting={boosting}", flush=True)
                 
-        except (json.JSONDecodeError, ValueError, TypeError):
-            # Bozuk paket, atla
-            pass
+        except (json.JSONDecodeError, ValueError, TypeError, AttributeError) as e:
+            # Ilk parse hatasini goster (debug icin)
+            if self._packet_count == 0:
+                print(f"  [API] JSON parse hatasi: {e}", flush=True)
+                print(f"  [API] Ham veri: {raw[:200]}", flush=True)
