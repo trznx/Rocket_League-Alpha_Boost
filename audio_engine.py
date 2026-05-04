@@ -1,15 +1,16 @@
 """
 Alpha Boost Engine - Audio Engine (API Edition)
 ================================================
-Sadece 'alpha_boost' profili uzerinden calisan, 5 seviyeli (5-Level)
+Sadece 'alpha_boost' profili uzerinden calisan, 6 seviyeli (6-Level)
 Pygame tabanli ses motoru.
 
-5 Level Sistemi:
-  Level 1: 0-460 uu/s     (Dusuk hiz / Rolanti)
-  Level 2: 461-920 uu/s   (Hizlanma baslangici)
-  Level 3: 921-1380 uu/s  (Orta hiz yirtilmasi)
-  Level 4: 1381-1840 uu/s (Yuksek hiz tinisi)
-  Level 5: 1841-2300 uu/s (Supersonic / Limit)
+6 Level Sistemi:
+  Level 1: 0-383 uu/s     (En tok / Rolanti)
+  Level 2: 384-766 uu/s   (Tok 2)
+  Level 3: 767-1150 uu/s  (Tok 3)
+  Level 4: 1151-1533 uu/s (Hizli 1)
+  Level 5: 1534-1916 uu/s (Hizli 2)
+  Level 6: 1917-2300 uu/s (En hizli / Supersonic)
 """
 
 import pygame
@@ -24,16 +25,17 @@ class AlphaBoostAudioEngine:
     API'den gelen hiz verisine gore anlik olarak dogru seviye secilir.
     """
     
-    NUM_LEVELS = 5
+    NUM_LEVELS = 6
     MAX_SPEED = 2300.0
     
     # Her level'in hiz araliklari (alt sinir, ust sinir)
     LEVEL_RANGES = [
-        (   0,  460),  # Level 1
-        ( 461,  920),  # Level 2
-        ( 921, 1380),  # Level 3
-        (1381, 1840),  # Level 4
-        (1841, 2300),  # Level 5
+        (   0,  383),  # Level 1
+        ( 384,  766),  # Level 2
+        ( 767, 1150),  # Level 3
+        (1151, 1533),  # Level 4
+        (1534, 1916),  # Level 5
+        (1917, 2300),  # Level 6
     ]
     
     def __init__(self, channels=8):
@@ -76,10 +78,10 @@ class AlphaBoostAudioEngine:
         """Hiza gore dogru level numarasini dondurur (1-5).
         
         0 uu/s      -> Level 1
-        460 uu/s    -> Level 1
-        461 uu/s    -> Level 2
+        383 uu/s    -> Level 1
+        384 uu/s    -> Level 2
         ...
-        2300 uu/s   -> Level 5
+        2300 uu/s   -> Level 6
         """
         for i, (v_min, v_max) in enumerate(self.LEVEL_RANGES):
             if speed <= v_max:

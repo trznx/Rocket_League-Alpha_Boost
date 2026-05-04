@@ -18,14 +18,15 @@ OUT_DIR   = os.path.join("assets", "sounds", "alpha_boost")
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
-# ─── 5-LEVEL TANIMLAMALARI ───────────────────────────────────────────────────
+# ─── 6-LEVEL TANIMLAMALARI ───────────────────────────────────────────────────
 # Her tuple: (level_no, hız_aralığı_alt, hız_aralığı_üst, açıklama)
 LEVELS = [
-    (1,    0,  460, "Düşük hız / Rölanti"),
-    (2,  461,  920, "Hızlanma başlangıcı"),
-    (3,  921, 1380, "Orta hız yırtılması"),
-    (4, 1381, 1840, "Yüksek hız tınısı"),
-    (5, 1841, 2300, "Supersonic / Limit"),
+    (1,    0,  383, "En tok / Rölanti"),
+    (2,  384,  766, "Tok 2"),
+    (3,  767, 1150, "Tok 3"),
+    (4, 1151, 1533, "Hızlı 1"),
+    (5, 1534, 1916, "Hızlı 2"),
+    (6, 1917, 2300, "En hızlı / Supersonic"),
 ]
 
 ORIGINAL_SAMPLE_RATE = 44100
@@ -33,7 +34,7 @@ MAX_SPEED = 2300.0
 MAX_PITCH_SHIFT = 0.42  # Maksimum pitch artışı (1.0x -> 1.42x)
 
 print("=" * 60)
-print("  Alpha Boost — 5-Level Ses Üretici")
+print("  Alpha Boost — 6-Level Ses Uretici")
 print(f"  Kaynak: {BASE_FILE}")
 print(f"  Formül: PitchRatio = 1.0 + (v / {MAX_SPEED} × {MAX_PITCH_SHIFT})")
 print("=" * 60)
@@ -72,5 +73,5 @@ for level_no, v_min, v_max, desc in LEVELS:
         print(f"    Durum       : HATA (FFmpeg returncode={result.returncode})")
 
 print("\n" + "=" * 60)
-print("  Tüm 5 level dosyası başarıyla oluşturuldu!")
+print("  Tum 6 level dosyasi basariyla olusturuldu!")
 print("=" * 60)

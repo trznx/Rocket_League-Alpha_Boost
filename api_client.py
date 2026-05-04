@@ -277,8 +277,13 @@ class RocketLeagueAPI:
                     player = p
                     break
             
-            speed_raw = float(player.get("Speed", 0.0))
-            boost_amount = int(player.get("Boost", 100))  # Yoksa 100 varsay (engellemez)
+            # Omitted fields mean they haven't changed. Get previous values first.
+            with self._lock:
+                prev_speed_raw = self._speed_raw
+                prev_boost = self._boost_amount
+                
+            speed_raw = float(player.get("Speed", prev_speed_raw))
+            boost_amount = int(player.get("Boost", prev_boost))  # Omitted -> keep previous
             
             # km/h -> uu/s donusumu
             speed_uu = speed_raw * self.SPEED_CONVERSION
