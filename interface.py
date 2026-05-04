@@ -337,14 +337,6 @@ class AlphaBoostApp(ctk.CTk):
 
         ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=5)
 
-        self.toggle_manual = ToggleRow(
-            inner, label_text="Manual Mode (Mouse)", shortcut_text="",
-            initial=self.cb["get_manual_mode"](), icon_name="ic_controls.png",
-            command=self._on_toggle_manual)
-        self.toggle_manual.pack(fill="x", pady=5)
-
-        ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=5)
-
         self.toggle_unlimited = ToggleRow(
             inner, label_text="Unlimited Boost", shortcut_text="F4",
             initial=self.cb["get_unlimited_boost"](), icon_name="ic_freeplay.png",
@@ -392,8 +384,7 @@ class AlphaBoostApp(ctk.CTk):
     def _on_toggle_active(self):
         self.cb["toggle_active"]()
 
-    def _on_toggle_manual(self):
-        self.cb["toggle_manual_mode"]()
+
 
     def _on_toggle_unlimited(self):
         self.cb["toggle_unlimited_boost"]()
@@ -478,8 +469,7 @@ class AlphaBoostApp(ctk.CTk):
     def update_shortcuts_state(self, enabled: bool):
         self.toggle_shortcuts.set_state(enabled)
 
-    def update_manual_mode_state(self, enabled: bool):
-        self.toggle_manual.set_state(enabled)
+
 
     def update_unlimited_boost_state(self, enabled: bool):
         self.toggle_unlimited.set_state(enabled)

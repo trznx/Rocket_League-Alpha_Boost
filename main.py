@@ -1,11 +1,8 @@
 """
-Alpha Boost Engine - Main (API + Manual Hybrid Edition)
-========================================================
-Iki calisma modu destekler:
-  1. API Mode: Rocket League WebSocket API'sinden gercek veri okur.
-  2. Manual Mode: Mouse tiklama + fizik tahmini ile calisir (API yoksa fallback).
-
-Eski OCR/ekran tarama sistemi kaldirilmistir.
+Alpha Boost Engine - Main (Hybrid Edition)
+============================================
+Boost tespiti: Mouse tiklama (GetAsyncKeyState)
+Hiz verisi: API'den gercek Speed (varsa), yoksa fizik tahmini
 """
 
 import pygame
@@ -28,7 +25,6 @@ default_settings = {
     "audio_delay_ms": 0,
     "is_active": True,
     "shortcuts_enabled": True,
-    "manual_mode": True,
     "unlimited_boost": False,
 }
 
@@ -52,7 +48,6 @@ SES_SEVIYESI = user_settings["volume"]
 AUDIO_DELAY_MS = user_settings.get("audio_delay_ms", 0)
 IS_ACTIVE = user_settings["is_active"]
 SHORTCUTS_ENABLED = user_settings.get("shortcuts_enabled", True)
-MANUAL_MODE = user_settings.get("manual_mode", True)
 UNLIMITED_BOOST = user_settings.get("unlimited_boost", False)
 
 # ─── AUDIO ENGINE INIT ───────────────────────────────────────────────────────
@@ -69,15 +64,14 @@ is_mouse_down = False
 mouse_down_time = 0.0
 estimated_speed = 0.0
 
-# Manuel mod fizik sabitleri
-ACCELERATION = 911.0   # uu/s^2
-DECELERATION = 800.0   # uu/s^2
-MAX_SPEED = 2300.0      # uu/s
+# Fizik sabitleri (API baglantisi yokken kullanilir)
+ACCELERATION = 911.0
+DECELERATION = 800.0
+MAX_SPEED = 2300.0
 
-# ─── RL ACTIVE CHECK ─────────────────────────────────────────────────────────
+# ─── HELPER FUNCTIONS ────────────────────────────────────────────────────────
 
 def is_rl_active():
-    """Rocket League penceresinin on planda olup olmadigini kontrol eder."""
     try:
         hwnd = ctypes.windll.user32.GetForegroundWindow()
         length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
@@ -89,7 +83,6 @@ def is_rl_active():
         return False
 
 def is_cursor_visible():
-    """Windows imlecinin gorunup gorunmedigini kontrol eder (menu tespiti)."""
     try:
         class POINT(ctypes.Structure):
             _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
@@ -103,10 +96,14 @@ def is_cursor_visible():
     except Exception:
         return False
 
-# ─── MAIN LOGIC LOOP ─────────────────────────────────────────────────────────
+# ─── MAIN ENGINE LOOP ────────────────────────────────────────────────────────
 
 def engine_loop():
-    """Ana motor dongusu - hem API hem Manuel modu destekler."""
+    """Hibrit motor dongusu.
+    
+    Boost tespiti: HERZAMAN mouse tiklama ile (API'de bBoosting yok)
+    Hiz verisi: API baglantisindan Speed (yoksa fizik tahmini)
+    """
     global is_sound_playing, is_mouse_down, mouse_down_time, estimated_speed
     
     last_update_time = time.time()
@@ -118,27 +115,31 @@ def engine_loop():
         dt = current_time - last_update_time
         last_update_time = current_time
         
-        # RL aktif mi kontrolu (saniyede 2 kez)
+        # RL aktif mi? (saniyede 2 kez kontrol)
         if current_time - last_rl_check_time > 0.5:
-            cached_rl_active = is_rl_active()
+            # API bagliysa RL kesinlikle aktif
+            if api.connected:
+                cached_rl_active = True
+            else:
+                cached_rl_active = is_rl_active()
             last_rl_check_time = current_time
         
-        # ─── VERI KAYNAGI SECIMI ──────────────────────────────────────────
-        speed = 0.0
-        is_boosting = False
+        # ─── BOOST TESPITI (Mouse) ────────────────────────────────────────
+        current_mouse = (ctypes.windll.user32.GetAsyncKeyState(0x01) & 0x8000) != 0
+        if current_mouse and not is_mouse_down:
+            mouse_down_time = current_time
+        is_mouse_down = current_mouse
         
-        if MANUAL_MODE:
-            # Manuel Mod: Mouse tiklama + fizik tahmini
-            current_mouse = (ctypes.windll.user32.GetAsyncKeyState(0x01) & 0x8000) != 0
-            if current_mouse and not is_mouse_down:
-                mouse_down_time = current_time
-            is_mouse_down = current_mouse
-            
-            # Cursor gorunurse (menu acik) boost basmayi yoksay
-            mouse_boosting = is_mouse_down and not is_cursor_visible()
-            
-            # Fizik hesabi
-            if mouse_boosting:
+        # Cursor gorunurse (menu acik) boost basmayi yoksay
+        is_boosting = is_mouse_down and not is_cursor_visible()
+        
+        # ─── HIZ VERISI ──────────────────────────────────────────────────
+        if api.connected:
+            # API'den gercek hiz
+            speed = api.speed
+        else:
+            # API yoksa fizik tahmini
+            if is_boosting:
                 estimated_speed += ACCELERATION * dt
                 if estimated_speed > MAX_SPEED:
                     estimated_speed = MAX_SPEED
@@ -146,24 +147,19 @@ def engine_loop():
                 estimated_speed -= DECELERATION * dt
                 if estimated_speed < 0:
                     estimated_speed = 0
-            
             speed = estimated_speed
-            is_boosting = mouse_boosting
-            
-        else:
-            # API Modu: WebSocket'ten gercek veri
-            speed = api.speed
-            is_boosting = api.is_boosting
         
         # ─── DURUM KARARI ─────────────────────────────────────────────────
         should_play = False
         
         if IS_ACTIVE and cached_rl_active and is_boosting:
-            should_play = True
-        
-        # Sinirci boost modundaysa ve mouse basili ise her zaman cal
-        if IS_ACTIVE and cached_rl_active and UNLIMITED_BOOST and MANUAL_MODE:
-            if is_mouse_down and not is_cursor_visible():
+            # API bagliysa boost miktarini kontrol et
+            if api.connected and not UNLIMITED_BOOST:
+                # Boost 0 ise ses calma (boost yok!)
+                if api.boost_amount > 0:
+                    should_play = True
+            else:
+                # API yoksa veya sinirsiz boost aciksa her zaman cal
                 should_play = True
         
         # ─── SES YONETIMI ────────────────────────────────────────────────
@@ -178,8 +174,9 @@ def engine_loop():
             audio.stop_loop()
             audio.trigger_end()
             is_sound_playing = False
+            estimated_speed = 0.0
         
-        # Ses caliyorsa hizi guncelle
+        # Ses caliyorsa hizi guncelle (level gecisleri)
         if is_sound_playing:
             audio.update_speed(speed)
         
@@ -205,14 +202,6 @@ def toggle_shortcuts():
     save_settings()
     if app:
         app.update_shortcuts_state(SHORTCUTS_ENABLED)
-
-def toggle_manual_mode():
-    global MANUAL_MODE
-    MANUAL_MODE = not MANUAL_MODE
-    user_settings["manual_mode"] = MANUAL_MODE
-    save_settings()
-    if app:
-        app.update_manual_mode_state(MANUAL_MODE)
 
 def toggle_unlimited_boost():
     global UNLIMITED_BOOST
@@ -246,18 +235,18 @@ def on_press(key):
     except AttributeError:
         pass
 
-# ─── START BACKGROUND THREADS ────────────────────────────────────────────────
+# ─── START ────────────────────────────────────────────────────────────────────
 
 threading.Thread(target=engine_loop, daemon=True).start()
 
 print("\n" + "=" * 50)
 print("  ALPHA BOOST ENGINE (v2.0 - HYBRID) AKTIF")
 print(f"  Ses Seviyesi: %{int(SES_SEVIYESI * 100)}")
-print(f"  Mod: {'MANUEL (Mouse)' if MANUAL_MODE else 'API (WebSocket)'}")
+print(f"  Boost Tespiti: Mouse Tiklama")
+print(f"  Hiz Verisi: {'API (Gercek)' if api.connected else 'Fizik Tahmini'}")
 print(f"  Sinirsiz Boost: {'ACIK' if UNLIMITED_BOOST else 'KAPALI'}")
 print("=" * 50, flush=True)
 
-# Keyboard listener
 keyboard_listener = keyboard.Listener(on_press=on_press)
 keyboard_listener.start()
 
@@ -268,11 +257,9 @@ from interface import AlphaBoostApp
 engine_callbacks = {
     "toggle_active": toggle_active,
     "toggle_shortcuts": toggle_shortcuts,
-    "toggle_manual_mode": toggle_manual_mode,
     "toggle_unlimited_boost": toggle_unlimited_boost,
     "get_active": lambda: IS_ACTIVE,
     "get_shortcuts": lambda: SHORTCUTS_ENABLED,
-    "get_manual_mode": lambda: MANUAL_MODE,
     "get_unlimited_boost": lambda: UNLIMITED_BOOST,
     "get_volume": lambda: SES_SEVIYESI,
     "set_volume": set_volume,

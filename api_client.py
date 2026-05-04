@@ -36,14 +36,20 @@ class RocketLeagueAPI:
     
     def __init__(self):
         self._lock = threading.Lock()
-        self._speed = 0.0
+        self._speed = 0.0        # uu/s cinsinden (donusturulmus)
+        self._speed_raw = 0.0    # API'den gelen ham deger (km/h)
         self._is_boosting = False
+        self._boost_amount = 100  # 0-100 arasi boost miktari
         self._connected = False
         self._last_error = ""
         self._packet_count = 0
         
         self._thread = None
         self._running = False
+    
+    # API hizi km/h cinsinden geliyor, biz uu/s kullaniyoruz
+    # Supersonic (~2200 uu/s) = ~82 km/h  =>  1 km/h = ~27.71 uu/s
+    SPEED_CONVERSION = 2300.0 / 83.0  # ~27.71
     
     # ─── PUBLIC PROPERTIES ───────────────────────────────────────────────────
     
@@ -66,6 +72,12 @@ class RocketLeagueAPI:
     def last_error(self) -> str:
         with self._lock:
             return self._last_error
+    
+    @property
+    def boost_amount(self) -> int:
+        """Boost miktari (0-100). API'de yoksa 100 doner."""
+        with self._lock:
+            return self._boost_amount
     
     # ─── LIFECYCLE ───────────────────────────────────────────────────────────
     
@@ -105,6 +117,7 @@ class RocketLeagueAPI:
                 
                 # Veri tamponu - TCP parcali veri gonderebilir
                 buffer = ""
+                raw_debug_shown = False
                 
                 while self._running:
                     try:
@@ -113,7 +126,15 @@ class RocketLeagueAPI:
                             print("  [API] Baglanti kapandi (bos veri)", flush=True)
                             break
                         
-                        buffer += data.decode("utf-8", errors="replace")
+                        decoded = data.decode("utf-8", errors="replace")
+                        
+                        # DEBUG: Ilk gelen ham veriyi goster
+                        if not raw_debug_shown:
+                            preview = decoded[:500].replace('\n', '\\n').replace('\r', '\\r')
+                            print(f"  [API] HAM VERI (ilk {len(decoded)} byte): {preview}", flush=True)
+                            raw_debug_shown = True
+                        
+                        buffer += decoded
                         
                         # JSON nesnelerini ayikla
                         # TCP akisinda birden fazla JSON nesnesi art arda gelebilir
@@ -211,37 +232,91 @@ class RocketLeagueAPI:
     def _parse_packet(self, raw: str):
         """Gelen JSON paketini cozumler.
         
-        Beklenen formatlar:
-        1) {"Event": "UpdateState", "Data": {"Speed": ..., "Boost": ..., "bBoosting": ...}}
-        2) {"Speed": ..., "Boost": ..., "bBoosting": ...}
+        Gercek format (kesfedildi):
+        {
+          "Event": "UpdateState",
+          "Data": "{\"Players\":[{\"Speed\":81.9, \"Boost\":12, \"bBoosting\":true, ...}], ...}"
+        }
+        
+        DIKKAT: "Data" alani STRING! Icindeki JSON'u tekrar parse etmek gerekiyor.
+        Oyuncu verileri Players dizisinin icinde.
         """
         try:
             packet = json.loads(raw)
             
-            # Rocket League resmi API: veriler "Data" anahtarinin icinde olabilir
-            if isinstance(packet, dict) and "Data" in packet:
-                data = packet["Data"]
-            else:
-                data = packet
-            
-            if not isinstance(data, dict):
+            if not isinstance(packet, dict):
                 return
             
-            # Hiz ve boost bilgisini al
-            speed = float(data.get("Speed", data.get("speed", 0.0)))
-            boosting = bool(data.get("bBoosting", data.get("boosting", False)))
+            # Sadece UpdateState event'lerini isle
+            event = packet.get("Event", "")
+            if event != "UpdateState":
+                return
+            
+            data_raw = packet.get("Data", "")
+            
+            # Data alani STRING olarak geliyor - tekrar parse et
+            if isinstance(data_raw, str):
+                try:
+                    data = json.loads(data_raw)
+                except json.JSONDecodeError:
+                    return
+            elif isinstance(data_raw, dict):
+                data = data_raw
+            else:
+                return
+            
+            # Players dizisinden kendi oyuncumuzu bul
+            players = data.get("Players", [])
+            if not players:
+                return
+            
+            # Ilk oyuncu (Shortcut=1 olan veya ilk eleman) bizim arabamiz
+            player = players[0]
+            for p in players:
+                if p.get("Shortcut", 0) == 1:
+                    player = p
+                    break
+            
+            speed_raw = float(player.get("Speed", 0.0))
+            boost_amount = int(player.get("Boost", 100))  # Yoksa 100 varsay (engellemez)
+            
+            # km/h -> uu/s donusumu
+            speed_uu = speed_raw * self.SPEED_CONVERSION
+            
+            # bBoosting alani olmayabilir - varsa kullan
+            if "bBoosting" in player:
+                boosting = bool(player["bBoosting"])
+            else:
+                boosting = False  # Mouse ile tespit edilecek
             
             with self._lock:
-                self._speed = speed
+                self._speed = speed_uu
+                self._speed_raw = speed_raw
                 self._is_boosting = boosting
+                self._boost_amount = boost_amount
                 self._packet_count += 1
             
             # Ilk basarili pakette bilgi ver
             if self._packet_count == 1:
-                print(f"  [API] Ilk veri paketi alindi! Speed={speed:.1f}, Boosting={boosting}", flush=True)
+                available_fields = list(player.keys())
+                print(f"  [API] Ilk veri paketi alindi!", flush=True)
+                print(f"  [API]   Oyuncu: {player.get('Name', '?')}", flush=True)
+                print(f"  [API]   Speed={speed_raw:.1f} km/h -> {speed_uu:.0f} uu/s", flush=True)
+                print(f"  [API]   Boost={boost_amount}, bBoosting={'bBoosting' in player}", flush=True)
+                print(f"  [API]   Tum alanlar: {available_fields}", flush=True)
                 
         except (json.JSONDecodeError, ValueError, TypeError, AttributeError) as e:
-            # Ilk parse hatasini goster (debug icin)
             if self._packet_count == 0:
                 print(f"  [API] JSON parse hatasi: {e}", flush=True)
-                print(f"  [API] Ham veri: {raw[:200]}", flush=True)
+                print(f"  [API] Ham veri: {raw[:300]}", flush=True)
+    
+    def _detect_boosting(self, current_boost):
+        """bBoosting alani yoksa, boost miktarinin azalip azalmadigina bakarak tespit eder."""
+        prev = getattr(self, '_prev_boost', -1)
+        self._prev_boost = current_boost
+        
+        if prev < 0:
+            return False
+        
+        # Boost azaliyorsa, oyuncu boost kullaniyor demektir
+        return current_boost < prev
