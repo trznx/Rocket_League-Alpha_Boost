@@ -292,9 +292,8 @@ class AlphaBoostApp(ctk.CTk):
         inner = ctk.CTkFrame(container, fg_color="transparent")
         inner.pack(fill="both", expand=True, padx=18, pady=14)
 
-        # Build order: Header → Calibration → Controls → General Settings → Tips → Footer
+        # Build order: Header -> Controls -> Audio Settings -> Tips -> Footer
         self._build_header(inner)
-        self._build_calibration(inner)
         self._build_controls_card(inner)
         self._build_general_settings(inner)
         self._build_tips(inner)
@@ -320,51 +319,6 @@ class AlphaBoostApp(ctk.CTk):
                      text_color=COLORS["text_primary"], anchor="center").pack(anchor="center")
 
 
-    # ── Calibration (collapsible, at top) ─────────────────────────────────────
-
-    def _build_calibration(self, parent):
-        self._calib = CollapsibleSection(
-            parent,
-            hint_text="First time? Run calibration to set up boost tracking.",
-            btn_show="Setup", btn_hide="Hide",
-            icon_name="ic_calibration.png", start_expanded=False)
-        self._calib.pack(fill="x", pady=(0, 10))
-
-        p = self._calib.panel_inner
-
-        self.btn_calibrate = ctk.CTkButton(
-            p, text="Run Calibration",
-            image=load_icon("ic_calibrate_btn.png", size=(14, 14)),
-            font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
-            fg_color=COLORS["accent_blue"], hover_color=COLORS["accent_blue_dim"],
-            text_color="#FFFFFF", height=32, corner_radius=7,
-            command=self._on_calibrate)
-        self.btn_calibrate.pack(fill="x")
-
-        self.lbl_status = ctk.CTkLabel(
-            p, text="Make sure you're in Freeplay with 0 boost.",
-            font=ctk.CTkFont(family="Segoe UI", size=10),
-            text_color=COLORS["text_muted"], anchor="w", wraplength=360, justify="left")
-        self.lbl_status.pack(fill="x", pady=(6, 0))
-
-    def _on_calibrate(self):
-        res = messagebox.askyesno(
-            "Calibration",
-            "Are you sure you want to recalibrate?\n\n"
-            "Make sure you are in Freeplay, your boost is at 0, "
-            "and the game is Borderless/Windowed.", parent=self)
-        if not res:
-            return
-        self.lbl_status.configure(text="Calibration starting...", text_color=COLORS["warning_yellow"])
-        self.cb["start_calibration"](self._calibration_status_update)
-
-    def _calibration_status_update(self, msg):
-        self.after(0, lambda: self.lbl_status.configure(
-            text=msg,
-            text_color=COLORS["accent_cyan"] if "SUCCESS" in msg.upper()
-            else COLORS["disabled_red"] if "ERROR" in msg.upper()
-            else COLORS["warning_yellow"]))
-
     # ── Engine Controls ───────────────────────────────────────────────────────
 
     def _build_controls_card(self, parent):
@@ -383,83 +337,55 @@ class AlphaBoostApp(ctk.CTk):
 
         ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=5)
 
-        self.toggle_freeplay = ToggleRow(
-            inner, label_text="Freeplay Mode", shortcut_text="F4",
-            initial=self.cb["get_freeplay"](), icon_name="ic_freeplay.png",
-            command=self._on_toggle_freeplay)
-        self.toggle_freeplay.pack(fill="x", pady=5)
-
-        ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=5)
-
         self.toggle_shortcuts = ToggleRow(
             inner, label_text="Keyboard Shortcuts", shortcut_text="",
             initial=self.cb["get_shortcuts"](), icon_name="ic_keyboard.png",
             command=self._on_toggle_shortcuts)
         self.toggle_shortcuts.pack(fill="x", pady=(5, 0))
 
+        ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=5)
+
+        # API Connection Status
+        api_row = ctk.CTkFrame(inner, fg_color="transparent")
+        api_row.pack(fill="x", pady=(5, 0))
+        api_icon = load_icon("ic_freeplay.png", size=(16, 16))
+        if api_icon:
+            ctk.CTkLabel(api_row, text="", image=api_icon, width=16).pack(side="left", padx=(0, 6))
+        ctk.CTkLabel(api_row, text="API Connection",
+                     font=ctk.CTkFont(family="Segoe UI", size=12, weight="bold"),
+                     text_color=COLORS["text_primary"], anchor="w").pack(side="left")
+        self._api_status_label = ctk.CTkLabel(
+            api_row, text="WAITING...",
+            font=ctk.CTkFont(family="Segoe UI", size=10, weight="bold"),
+            text_color=COLORS["warning_yellow"])
+        self._api_status_label.pack(side="right")
+        self._poll_api_status()
+
+    def _poll_api_status(self):
+        """API baglanti durumunu her 1 saniyede bir kontrol eder."""
+        try:
+            connected = self.cb["get_api_status"]()
+            if connected:
+                self._api_status_label.configure(text="CONNECTED", text_color=COLORS["enabled_green"])
+            else:
+                self._api_status_label.configure(text="WAITING...", text_color=COLORS["warning_yellow"])
+        except Exception:
+            pass
+        self.after(1000, self._poll_api_status)
+
     def _on_toggle_active(self):
         self.cb["toggle_active"]()
-
-    def _on_toggle_freeplay(self):
-        self.cb["toggle_freeplay"]()
 
     def _on_toggle_shortcuts(self):
         self.cb["toggle_shortcuts"]()
 
-    # ── General Settings (merged profile + audio) ─────────────────────────────
-
     def _build_general_settings(self, parent):
-        SectionHeader(parent, "General Settings", icon_name="ic_general_settings.png").pack(fill="x", pady=(0, 3))
+        SectionHeader(parent, "Audio Settings", icon_name="ic_general_settings.png").pack(fill="x", pady=(0, 3))
 
         card = Card(parent)
         card.pack(fill="x", pady=(0, 10))
         inner = ctk.CTkFrame(card, fg_color="transparent")
         inner.pack(fill="x", padx=14, pady=12)
-
-        # ── Sub-header: Sound Profile ──
-        sp_header = ctk.CTkFrame(inner, fg_color="transparent")
-        sp_header.pack(fill="x", pady=(0, 5))
-        sp_icon = load_icon("ic_sound.png", size=(14, 14))
-        if sp_icon:
-            ctk.CTkLabel(sp_header, text="", image=sp_icon, width=14).pack(side="left", padx=(0, 5))
-        ctk.CTkLabel(sp_header, text="Sound Profile",
-                     font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
-                     text_color=COLORS["text_primary"], anchor="w").pack(side="left")
-
-        profiles = {
-            "Alpha Boost (Test)": "alpha_test",
-            "Classic Original Sound": "classic",
-            "Quiet Loop Sound (Recommended)": "quiet_loop",
-            "Quiet Loop 2 (Physics Based)": "quiet_loop_2",
-            "Low-RPM Start Sound": "low_rpm",
-        }
-        self._profile_map = profiles
-        self._profile_reverse = {v: k for k, v in profiles.items()}
-
-        current_code = self.cb["get_profile"]()
-        current_display = self._profile_reverse.get(current_code, "Quiet Loop Sound (Recommended)")
-
-        self.combo_profile = ctk.CTkComboBox(
-            inner, values=list(profiles.keys()), state="readonly",
-            font=ctk.CTkFont(family="Segoe UI", size=11),
-            dropdown_font=ctk.CTkFont(family="Segoe UI", size=11),
-            fg_color=COLORS["bg_secondary"], border_color=COLORS["border_accent"],
-            button_color=COLORS["accent_blue_dim"], button_hover_color=COLORS["accent_blue"],
-            dropdown_fg_color=COLORS["bg_card"], dropdown_hover_color=COLORS["bg_card_hover"],
-            dropdown_text_color=COLORS["text_primary"], text_color=COLORS["text_primary"],
-            height=32, corner_radius=7, command=self._on_profile_change)
-        self.combo_profile.set(current_display)
-        self.combo_profile.pack(fill="x")
-
-        # ── Sub-header: Audio Settings ──
-        as_header = ctk.CTkFrame(inner, fg_color="transparent")
-        as_header.pack(fill="x", pady=(25, 5))
-        as_icon = load_icon("ic_audio.png", size=(14, 14))
-        if as_icon:
-            ctk.CTkLabel(as_header, text="", image=as_icon, width=14).pack(side="left", padx=(0, 5))
-        ctk.CTkLabel(as_header, text="Audio Settings",
-                     font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
-                     text_color=COLORS["text_primary"], anchor="w").pack(side="left")
 
         self.slider_volume = SliderWithLabel(
             inner, label="Volume", from_=0, to=100,
@@ -474,10 +400,6 @@ class AlphaBoostApp(ctk.CTk):
             icon_name="ic_delay.png", command=self._on_delay_change,
             value_format=lambda v: f"{int(v)}")
         self.slider_delay.pack(fill="x")
-
-    def _on_profile_change(self, choice):
-        code = self._profile_map.get(choice, "quiet_loop")
-        self.cb["set_profile"](code)
 
     def _on_volume_change(self, val):
         self.cb["set_volume"](float(val) / 100.0)
@@ -496,9 +418,9 @@ class AlphaBoostApp(ctk.CTk):
 
         p = self._tips_section.panel_inner
         tips = [
-            ("Freeplay Mode", "Enable only when using Unlimited Boost in Freeplay.", COLORS["accent_orange"]),
+            ("API Connection", "Make sure BakkesMod/SOS plugin is running before launching.", COLORS["accent_orange"]),
             ("Goal Replays", "Short sounds during replays or countdowns are normal.", COLORS["accent_purple"]),
-            ("Calibration", "Ensure game is Borderless or Windowed Fullscreen.", COLORS["accent_cyan"]),
+            ("Performance", "API mode uses near-zero CPU compared to old screen reading.", COLORS["accent_cyan"]),
         ]
         for i, (title, desc, color) in enumerate(tips):
             tip_row = ctk.CTkFrame(p, fg_color="transparent")
@@ -522,7 +444,7 @@ class AlphaBoostApp(ctk.CTk):
     def _build_footer(self, parent):
         footer = ctk.CTkFrame(parent, fg_color="transparent")
         footer.pack(fill="x", pady=(2, 0))
-        ctk.CTkLabel(footer, text="Alpha Boost Engine v1.1.0  •  by trznx",
+        ctk.CTkLabel(footer, text="Alpha Boost Engine v2.0.0 (API Edition)  |  by trznx",
                      font=ctk.CTkFont(family="Segoe UI", size=9),
                      text_color=COLORS["text_muted"]).pack()
 
@@ -531,12 +453,5 @@ class AlphaBoostApp(ctk.CTk):
     def update_active_state(self, enabled: bool):
         self.toggle_active.set_state(enabled)
 
-    def update_freeplay_state(self, enabled: bool):
-        self.toggle_freeplay.set_state(enabled)
-
     def update_shortcuts_state(self, enabled: bool):
         self.toggle_shortcuts.set_state(enabled)
-
-    def set_profile_display(self, profile_code: str):
-        display = self._profile_reverse.get(profile_code, "Quiet Loop Sound (Recommended)")
-        self.combo_profile.set(display)
