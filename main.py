@@ -123,6 +123,12 @@ def monitor_logic():
             dt = current_time - last_update_time
             last_update_time = current_time
             
+            # --- MOUSE STATE POLLING ---
+            current_mouse_state = (ctypes.windll.user32.GetAsyncKeyState(0x01) & 0x8000) != 0
+            if current_mouse_state and not is_mouse_down:
+                mouse_down_time = current_time
+            is_mouse_down = current_mouse_state
+            
             # Görüntü alma ve işleme
             img = np.array(sct.grab(BOOST_REGION))
             gray = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
@@ -188,15 +194,28 @@ def monitor_logic():
                 is_sound_playing = False
                 
             # --- FİZİK VE DİNAMİK SES YÖNETİMİ ---
-            if should_play:
-                estimated_speed += ACCELERATION * dt
-                if estimated_speed > MAX_SPEED:
-                    estimated_speed = MAX_SPEED
-                audio.update_speed(estimated_speed)
+            if SOUND_PROFILE == "quiet_loop_2":
+                if should_play:
+                    estimated_speed += 911.0 * dt
+                    if estimated_speed > 2300.0:
+                        estimated_speed = 2300.0
+                else:
+                    estimated_speed -= 800.0 * dt
+                    if estimated_speed < 0:
+                        estimated_speed = 0
+                if is_sound_playing:
+                    audio.update_speed(estimated_speed)
             else:
-                estimated_speed -= DECELERATION * dt
-                if estimated_speed < 0:
-                    estimated_speed = 0
+                if should_play:
+                    estimated_speed += ACCELERATION * dt
+                    if estimated_speed > MAX_SPEED:
+                        estimated_speed = MAX_SPEED
+                else:
+                    estimated_speed -= DECELERATION * dt
+                    if estimated_speed < 0:
+                        estimated_speed = 0
+                if is_sound_playing:
+                    audio.update_speed(estimated_speed)
 
                         # Check if RL is active only twice a second to save CPU
             if current_time - last_rl_check_time > 0.5:
@@ -205,13 +224,7 @@ def monitor_logic():
                 
             time.sleep(0.015) # ~66 FPS - ultra optimized
 
-def on_click(x, y, button, pressed):
-    global is_mouse_down, mouse_down_time
-    # Pynput callback MUST be as fast as possible to avoid input lag.
-    if button == mouse.Button.left:
-        is_mouse_down = pressed
-        if pressed:
-            mouse_down_time = time.time()
+
 
 # ─── GUI CALLBACK FUNCTIONS ──────────────────────────────────────────────────
 # These are called by the interface when the user interacts with the GUI.
@@ -295,9 +308,7 @@ print("  Çoklu Kanal Hissiyatı (Feathering): AÇIK")
 print("  Sınırsız Boost (Freeplay) Modu için: F4 tuşuna basın!")
 print("="*50)
 
-# Mouse and Keyboard listeners
-mouse_listener = mouse.Listener(on_click=on_click)
-mouse_listener.start()
+# Keyboard listeners
 
 keyboard_listener = keyboard.Listener(on_press=on_press)
 keyboard_listener.start()

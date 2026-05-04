@@ -429,6 +429,7 @@ class AlphaBoostApp(ctk.CTk):
         profiles = {
             "Classic Original Sound": "classic",
             "Quiet Loop Sound (Recommended)": "quiet_loop",
+            "Quiet Loop 2 (Physics Based)": "quiet_loop_2",
             "Low-RPM Start Sound": "low_rpm",
         }
         self._profile_map = profiles
