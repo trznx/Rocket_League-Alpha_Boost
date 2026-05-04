@@ -277,13 +277,11 @@ class RocketLeagueAPI:
                     player = p
                     break
             
-            # Omitted fields mean they haven't changed. Get previous values first.
-            with self._lock:
-                prev_speed_raw = self._speed_raw
-                prev_boost = self._boost_amount
-                
-            speed_raw = float(player.get("Speed", prev_speed_raw))
-            boost_amount = int(player.get("Boost", prev_boost))  # Omitted -> keep previous
+            # Rocket League'in JSON gondericisi eger deger 0 ise (veya False ise) alani tamamen GIZLER!
+            # Yani "Boost" alani json'da yoksa, bu boost'un 0 oldugu anlamina gelir.
+            # Delta update degildir, tam state'dir. Sadece default (0) olanlari gondermez.
+            speed_raw = float(player.get("Speed", 0.0))
+            boost_amount = int(player.get("Boost", 0))  # Yoksa 0'dir!
             
             # km/h -> uu/s donusumu
             speed_uu = speed_raw * self.SPEED_CONVERSION
