@@ -427,6 +427,7 @@ class AlphaBoostApp(ctk.CTk):
                      text_color=COLORS["text_primary"], anchor="w").pack(side="left")
 
         profiles = {
+            "Alpha Boost (Test)": "alpha_test",
             "Classic Original Sound": "classic",
             "Quiet Loop Sound (Recommended)": "quiet_loop",
             "Quiet Loop 2 (Physics Based)": "quiet_loop_2",

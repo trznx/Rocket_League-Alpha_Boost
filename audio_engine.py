@@ -42,6 +42,12 @@ class AlphaBoostAudioEngine:
             if self.profile == "quiet_loop_2":
                 for i in range(1, 13):
                     self.levels[i] = pygame.mixer.Sound(self.get_path(f"level_{i}.wav"))
+            elif self.profile == "alpha_test":
+                # User test profile: assets/sounds/alpha_boost/testttttt.wav
+                path = os.path.join("assets", "sounds", "alpha_boost", "Net_Alpha_Boost.wav")
+                self.levels[1] = pygame.mixer.Sound(path)
+                for i in range(2, 13):
+                    self.levels[i] = None
             else:
                 self.levels[1] = pygame.mixer.Sound(self.get_path("full_boost.wav"))
                 for i in range(2, 9):
@@ -62,6 +68,8 @@ class AlphaBoostAudioEngine:
 
     def play_loop(self, speed):
         target_level = self._get_level_from_speed(speed)
+        if self.profile == "alpha_test":
+            target_level = 1
         
         for i in range(1, 13 if self.profile == "quiet_loop_2" else 9):
             if self.levels.get(i) is None:
@@ -74,6 +82,8 @@ class AlphaBoostAudioEngine:
 
     def update_speed(self, speed):
         target_level = self._get_level_from_speed(speed)
+        if self.profile == "alpha_test":
+            target_level = 1
         
         for i in range(1, 13 if self.profile == "quiet_loop_2" else 9):
             if self.levels.get(i) is None:
@@ -89,7 +99,9 @@ class AlphaBoostAudioEngine:
                 ch.fadeout(150)
 
     def _get_level_from_speed(self, speed):
-        if self.profile == "quiet_loop_2":
+        if self.profile == "alpha_test":
+            return 1
+        elif self.profile == "quiet_loop_2":
             level = int((speed / 2300.0) * 12) + 1
             return max(1, min(12, level))
         else:
