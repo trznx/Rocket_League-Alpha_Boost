@@ -393,13 +393,57 @@ class AlphaBoostApp(ctk.CTk):
         self.cb["toggle_shortcuts"]()
 
     def _build_general_settings(self, parent):
-        SectionHeader(parent, "Audio Settings", icon_name="ic_general_settings.png").pack(fill="x", pady=(0, 3))
+        SectionHeader(parent, "General Settings", icon_name="ic_general_settings.png").pack(fill="x", pady=(0, 3))
 
         card = Card(parent)
         card.pack(fill="x", pady=(0, 10))
         inner = ctk.CTkFrame(card, fg_color="transparent")
         inner.pack(fill="x", padx=14, pady=12)
 
+        # ── Profile Selection ─────────────────────────────────────────────
+        profile_header = ctk.CTkFrame(inner, fg_color="transparent")
+        profile_header.pack(fill="x", pady=(0, 6))
+
+        profile_icon = load_icon("ic_boost.png", size=(14, 14))
+        if profile_icon:
+            ctk.CTkLabel(profile_header, text="", image=profile_icon, width=14
+                         ).pack(side="left", padx=(0, 5))
+        ctk.CTkLabel(profile_header, text="Sound Profile",
+                     font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
+                     text_color=COLORS["text_primary"], anchor="w").pack(side="left")
+
+        current_profile = self.cb["get_profile"]()
+
+        self._profile_var = ctk.StringVar(value=current_profile.capitalize())
+        self._profile_seg = ctk.CTkSegmentedButton(
+            inner,
+            values=["Advanced", "Normal"],
+            variable=self._profile_var,
+            command=self._on_profile_change,
+            font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
+            selected_color=COLORS["accent_blue"],
+            selected_hover_color=COLORS["accent_blue_dim"],
+            unselected_color=COLORS["bg_secondary"],
+            unselected_hover_color=COLORS["bg_card_hover"],
+            text_color=COLORS["text_primary"],
+            text_color_disabled=COLORS["text_muted"],
+            corner_radius=6,
+            height=30)
+        self._profile_seg.pack(fill="x", pady=(0, 4))
+
+        # Profil açıklaması
+        self._profile_desc = ctk.CTkLabel(
+            inner,
+            text=self._get_profile_desc(current_profile),
+            font=ctk.CTkFont(family="Segoe UI", size=10),
+            text_color=COLORS["text_muted"], anchor="w",
+            wraplength=350, justify="left")
+        self._profile_desc.pack(fill="x", pady=(0, 4))
+
+        # ── Separator ─────────────────────────────────────────────────────
+        ctk.CTkFrame(inner, height=1, fg_color=COLORS["divider"]).pack(fill="x", pady=6)
+
+        # ── Audio Settings ────────────────────────────────────────────────
         self.slider_volume = SliderWithLabel(
             inner, label="Volume", from_=0, to=100,
             value=int(self.cb["get_volume"]() * 100), unit="%",
@@ -413,6 +457,17 @@ class AlphaBoostApp(ctk.CTk):
             icon_name="ic_delay.png", command=self._on_delay_change,
             value_format=lambda v: f"{int(v)}")
         self.slider_delay.pack(fill="x")
+
+    def _on_profile_change(self, value):
+        profile = value.lower()
+        self.cb["set_profile"](profile)
+        self._profile_desc.configure(text=self._get_profile_desc(profile))
+
+    def _get_profile_desc(self, profile):
+        if profile == "advanced":
+            return "Speed-reactive: Sound changes based on car speed (0–500, 501–1000, 1001–1500, 1501–2000 uu/s)."
+        else:
+            return "Classic: Plays the original Alpha Boost sound at all speeds."
 
     def _on_volume_change(self, val):
         self.cb["set_volume"](float(val) / 100.0)

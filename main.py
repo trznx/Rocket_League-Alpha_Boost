@@ -26,6 +26,7 @@ default_settings = {
     "is_active": True,
     "shortcuts_enabled": True,
     "unlimited_boost": False,
+    "profile": "advanced",
 }
 
 if os.path.exists(SETTINGS_FILE):
@@ -51,8 +52,10 @@ SHORTCUTS_ENABLED = user_settings.get("shortcuts_enabled", True)
 UNLIMITED_BOOST = user_settings.get("unlimited_boost", False)
 
 # ─── AUDIO ENGINE INIT ───────────────────────────────────────────────────────
+PROFILE = user_settings.get("profile", "advanced")
 audio = AlphaBoostAudioEngine()
 audio.set_volume(SES_SEVIYESI)
+audio.set_profile(PROFILE)
 
 # ─── API CLIENT INIT ─────────────────────────────────────────────────────────
 api = RocketLeagueAPI()
@@ -224,6 +227,13 @@ def set_delay(val):
     user_settings["audio_delay_ms"] = AUDIO_DELAY_MS
     save_settings()
 
+def set_profile(profile_name):
+    global PROFILE
+    PROFILE = profile_name
+    user_settings["profile"] = PROFILE
+    save_settings()
+    audio.set_profile(PROFILE)
+
 def on_press(key):
     if not SHORTCUTS_ENABLED:
         return
@@ -266,6 +276,8 @@ engine_callbacks = {
     "get_delay": lambda: AUDIO_DELAY_MS,
     "set_delay": set_delay,
     "get_api_status": lambda: api.connected,
+    "get_profile": lambda: PROFILE,
+    "set_profile": set_profile,
 }
 
 app = AlphaBoostApp(engine_callbacks)
