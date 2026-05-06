@@ -40,6 +40,8 @@ class RocketLeagueAPI:
         self._speed_raw = 0.0    # API'den gelen ham deger (km/h)
         self._is_boosting = False
         self._boost_amount = 100  # 0-100 arasi boost miktari
+        self._last_boost_activity_time = 0.0
+        self._prev_boost_amount = None
         self._connected = False
         self._last_error = ""
         self._packet_count = 0
@@ -50,6 +52,7 @@ class RocketLeagueAPI:
     # API hizi km/h cinsinden geliyor, biz uu/s kullaniyoruz
     # Supersonic (~2200 uu/s) = ~82 km/h  =>  1 km/h = ~27.71 uu/s
     SPEED_CONVERSION = 2300.0 / 83.0  # ~27.71
+    BOOST_ACTIVITY_WINDOW = 0.06
     
     # ─── PUBLIC PROPERTIES ───────────────────────────────────────────────────
     
@@ -93,6 +96,9 @@ class RocketLeagueAPI:
         with self._lock:
             self._speed = 0.0
             self._is_boosting = False
+            self._boost_amount = 100
+            self._last_boost_activity_time = 0.0
+            self._prev_boost_amount = None
             self._connected = False
     
     # ─── INTERNAL ────────────────────────────────────────────────────────────
@@ -218,6 +224,9 @@ class RocketLeagueAPI:
                     self._connected = False
                     self._speed = 0.0
                     self._is_boosting = False
+                    self._boost_amount = 100
+                    self._last_boost_activity_time = 0.0
+                    self._prev_boost_amount = None
                 
                 if sock is not None:
                     try:
@@ -286,11 +295,17 @@ class RocketLeagueAPI:
             # km/h -> uu/s donusumu
             speed_uu = speed_raw * self.SPEED_CONVERSION
             
-            # bBoosting alani olmayabilir - varsa kullan
-            if "bBoosting" in player:
-                boosting = bool(player["bBoosting"])
-            else:
-                boosting = False  # Mouse ile tespit edilecek
+            boosting_flag = self._read_boosting_flag(player)
+            boost_is_draining = self._detect_boosting(boost_amount)
+            now = time.monotonic()
+            boosting = False
+
+            if boosting_flag is True or boost_is_draining:
+                boosting = True
+                self._last_boost_activity_time = now
+            elif (now - self._last_boost_activity_time) <= self.BOOST_ACTIVITY_WINDOW:
+                # bBoosting tek karelik dusse bile sesi hemen kesme.
+                boosting = True
             
             with self._lock:
                 self._speed = speed_uu
@@ -313,13 +328,31 @@ class RocketLeagueAPI:
                 print(f"  [API] JSON parse hatasi: {e}", flush=True)
                 print(f"  [API] Ham veri: {raw[:300]}", flush=True)
     
+    def _read_boosting_flag(self, player):
+        """API'deki bBoosting alanini varsa bool olarak dondurur."""
+        if "bBoosting" not in player:
+            return None
+
+        value = player["bBoosting"]
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return value != 0
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"true", "1", "yes", "on"}:
+                return True
+            if normalized in {"false", "0", "no", "off", ""}:
+                return False
+        return bool(value)
+
     def _detect_boosting(self, current_boost):
-        """bBoosting alani yoksa, boost miktarinin azalip azalmadigina bakarak tespit eder."""
-        prev = getattr(self, '_prev_boost', -1)
-        self._prev_boost = current_boost
-        
-        if prev < 0:
+        """bBoosting alanina ek olarak boost'un gercekten azaldigini kontrol eder."""
+        prev = self._prev_boost_amount
+        self._prev_boost_amount = current_boost
+
+        if prev is None:
             return False
-        
-        # Boost azaliyorsa, oyuncu boost kullaniyor demektir
+
+        # Boost azaliyorsa, oyuncu boost kullaniyor demektir.
         return current_boost < prev

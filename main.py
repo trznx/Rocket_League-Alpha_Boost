@@ -1,7 +1,7 @@
 """
 Alpha Boost Engine - Main (Hybrid Edition)
 ============================================
-Boost tespiti: Mouse tiklama (GetAsyncKeyState)
+Boost tespiti: Mouse tiklama + API dogrulamasi
 Hiz verisi: API'den gercek Speed (varsa), yoksa fizik tahmini
 """
 
@@ -64,7 +64,7 @@ api.start()
 # ─── STATE VARIABLES ─────────────────────────────────────────────────────────
 is_sound_playing = False
 is_mouse_down = False
-mouse_down_time = 0.0
+boost_start_time = 0.0
 estimated_speed = 0.0
 
 # Fizik sabitleri (API baglantisi yokken kullanilir)
@@ -104,10 +104,11 @@ def is_cursor_visible():
 def engine_loop():
     """Hibrit motor dongusu.
     
-    Boost tespiti: HERZAMAN mouse tiklama ile (API'de bBoosting yok)
+    Boost tespiti: Mouse tiklamasi ile oyuncu girdisi okunur.
+    API bagliysa ses ancak gercek boost harcamasi dogrulaninca calar.
     Hiz verisi: API baglantisindan Speed (yoksa fizik tahmini)
     """
-    global is_sound_playing, is_mouse_down, mouse_down_time, estimated_speed
+    global is_sound_playing, is_mouse_down, boost_start_time, estimated_speed
     
     last_update_time = time.time()
     last_rl_check_time = 0.0
@@ -129,12 +130,23 @@ def engine_loop():
         
         # ─── BOOST TESPITI (Mouse) ────────────────────────────────────────
         current_mouse = (ctypes.windll.user32.GetAsyncKeyState(0x01) & 0x8000) != 0
-        if current_mouse and not is_mouse_down:
-            mouse_down_time = current_time
         is_mouse_down = current_mouse
         
         # Cursor gorunurse (menu acik) boost basmayi yoksay
-        is_boosting = is_mouse_down and not is_cursor_visible()
+        input_boosting = is_mouse_down and not is_cursor_visible()
+
+        if api.connected:
+            # Mouse tek basina yeterli degil; API de boost'un gercekten harcandigini
+            # dogrulamali. Bu sayede kickoff gibi anlarda sahte ses tetiklenmez.
+            is_boosting = input_boosting and api.is_boosting
+        else:
+            is_boosting = input_boosting
+
+        if is_boosting:
+            if boost_start_time == 0.0:
+                boost_start_time = current_time
+        else:
+            boost_start_time = 0.0
         
         # ─── HIZ VERISI ──────────────────────────────────────────────────
         if api.connected:
@@ -142,7 +154,7 @@ def engine_loop():
             speed = api.speed
         else:
             # API yoksa fizik tahmini
-            if is_boosting:
+            if input_boosting:
                 estimated_speed += ACCELERATION * dt
                 if estimated_speed > MAX_SPEED:
                     estimated_speed = MAX_SPEED
@@ -166,7 +178,11 @@ def engine_loop():
                 should_play = True
         
         # ─── SES YONETIMI ────────────────────────────────────────────────
-        delay_elapsed = (current_time - mouse_down_time) >= (AUDIO_DELAY_MS / 1000.0)
+        delay_elapsed = (
+            AUDIO_DELAY_MS <= 0
+            or boost_start_time == 0.0
+            or (current_time - boost_start_time) >= (AUDIO_DELAY_MS / 1000.0)
+        )
         
         if should_play and not is_sound_playing and delay_elapsed:
             audio.trigger_start()
@@ -252,7 +268,7 @@ threading.Thread(target=engine_loop, daemon=True).start()
 print("\n" + "=" * 50)
 print("  ALPHA BOOST ENGINE (v2.0 - HYBRID) AKTIF")
 print(f"  Ses Seviyesi: %{int(SES_SEVIYESI * 100)}")
-print(f"  Boost Tespiti: Mouse Tiklama")
+print(f"  Boost Tespiti: Mouse + API Dogrulamasi")
 print(f"  Hiz Verisi: {'API (Gercek)' if api.connected else 'Fizik Tahmini'}")
 print(f"  Sinirsiz Boost: {'ACIK' if UNLIMITED_BOOST else 'KAPALI'}")
 print("=" * 50, flush=True)

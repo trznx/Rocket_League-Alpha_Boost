@@ -35,14 +35,14 @@ class AlphaBoostAudioEngine:
     NORMAL_FILE = "Classic.wav"
 
     def __init__(self, channels=8):
-        pygame.mixer.pre_init(44100, -16, 2, 256)
+        pygame.mixer.pre_init(48000, -16, 2, 512)
         pygame.mixer.init()
         pygame.mixer.set_num_channels(channels)
 
         self._channel = pygame.mixer.Channel(0)
 
         self._profile = "advanced"       # "advanced" veya "normal"
-        self._master_volume = 0.3
+        self._master_volume = 0.1
         self._current_sound = None       # Şu an yüklü Sound nesnesi
         self._current_file = None        # Şu an yüklü dosya adı
 
