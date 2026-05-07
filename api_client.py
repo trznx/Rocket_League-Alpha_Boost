@@ -42,6 +42,11 @@ class RocketLeagueAPI:
         self._boost_amount = 100  # 0-100 arasi boost miktari
         self._last_boost_activity_time = 0.0
         self._prev_boost_amount = None
+        self._tracked_primary_id = None
+        self._tracked_shortcut = None
+        self._tracked_name = None
+        self._tracked_team_num = None
+        self._match_guid = None
         self._connected = False
         self._last_error = ""
         self._packet_count = 0
@@ -99,6 +104,11 @@ class RocketLeagueAPI:
             self._boost_amount = 100
             self._last_boost_activity_time = 0.0
             self._prev_boost_amount = None
+            self._tracked_primary_id = None
+            self._tracked_shortcut = None
+            self._tracked_name = None
+            self._tracked_team_num = None
+            self._match_guid = None
             self._connected = False
     
     # ─── INTERNAL ────────────────────────────────────────────────────────────
@@ -118,6 +128,11 @@ class RocketLeagueAPI:
                     self._connected = True
                     self._last_error = ""
                     self._packet_count = 0
+                    self._tracked_primary_id = None
+                    self._tracked_shortcut = None
+                    self._tracked_name = None
+                    self._tracked_team_num = None
+                    self._match_guid = None
                 retry_count = 0
                 print(f"  [API] Rocket League'e baglandi! (TCP {self.HOST}:{self.PORT})", flush=True)
                 
@@ -227,6 +242,11 @@ class RocketLeagueAPI:
                     self._boost_amount = 100
                     self._last_boost_activity_time = 0.0
                     self._prev_boost_amount = None
+                    self._tracked_primary_id = None
+                    self._tracked_shortcut = None
+                    self._tracked_name = None
+                    self._tracked_team_num = None
+                    self._match_guid = None
                 
                 if sock is not None:
                     try:
@@ -274,17 +294,22 @@ class RocketLeagueAPI:
             else:
                 return
             
+            match_guid = data.get("MatchGuid")
+            if match_guid != self._match_guid:
+                self._match_guid = match_guid
+                self._tracked_primary_id = None
+                self._tracked_shortcut = None
+                self._tracked_name = None
+                self._tracked_team_num = None
+                self._last_boost_activity_time = 0.0
+                self._prev_boost_amount = None
+
             # Players dizisinden kendi oyuncumuzu bul
             players = data.get("Players", [])
             if not players:
                 return
-            
-            # Ilk oyuncu (Shortcut=1 olan veya ilk eleman) bizim arabamiz
-            player = players[0]
-            for p in players:
-                if p.get("Shortcut", 0) == 1:
-                    player = p
-                    break
+
+            player, selection_source = self._select_local_player(players, data.get("Game", {}))
             
             # Rocket League'in JSON gondericisi eger deger 0 ise (veya False ise) alani tamamen GIZLER!
             # Yani "Boost" alani json'da yoksa, bu boost'un 0 oldugu anlamina gelir.
@@ -319,6 +344,7 @@ class RocketLeagueAPI:
                 available_fields = list(player.keys())
                 print(f"  [API] Ilk veri paketi alindi!", flush=True)
                 print(f"  [API]   Oyuncu: {player.get('Name', '?')}", flush=True)
+                print(f"  [API]   Secim: {selection_source}", flush=True)
                 print(f"  [API]   Speed={speed_raw:.1f} km/h -> {speed_uu:.0f} uu/s", flush=True)
                 print(f"  [API]   Boost={boost_amount}, bBoosting={'bBoosting' in player}", flush=True)
                 print(f"  [API]   Tum alanlar: {available_fields}", flush=True)
@@ -356,3 +382,77 @@ class RocketLeagueAPI:
 
         # Boost azaliyorsa, oyuncu boost kullaniyor demektir.
         return current_boost < prev
+
+    def _select_local_player(self, players, game_state):
+        """Local istemcinin izledigi oyuncuyu secmeye calisir."""
+        target = None
+        if isinstance(game_state, dict) and game_state.get("bHasTarget"):
+            maybe_target = game_state.get("Target")
+            if isinstance(maybe_target, dict):
+                target = maybe_target
+
+        if target is not None:
+            player = self._find_player(
+                players,
+                shortcut=target.get("Shortcut"),
+                name=target.get("Name"),
+                team_num=target.get("TeamNum"),
+            )
+            if player is not None:
+                self._remember_player(player)
+                return player, "Game.Target"
+
+        if self._tracked_primary_id is not None:
+            player = self._find_player(players, primary_id=self._tracked_primary_id)
+            if player is not None:
+                self._remember_player(player)
+                return player, "PrimaryId cache"
+
+        if self._tracked_shortcut is not None:
+            player = self._find_player(
+                players,
+                shortcut=self._tracked_shortcut,
+                name=self._tracked_name,
+                team_num=self._tracked_team_num,
+            )
+            if player is not None:
+                self._remember_player(player)
+                return player, "Shortcut cache"
+
+        for player in players:
+            if player.get("Shortcut", 0) == 1:
+                self._remember_player(player)
+                return player, "Shortcut=1 fallback"
+
+        player = players[0]
+        self._remember_player(player)
+        return player, "Players[0] fallback"
+
+    def _find_player(self, players, shortcut=None, primary_id=None, name=None, team_num=None):
+        for player in players:
+            if primary_id is not None and player.get("PrimaryId") == primary_id:
+                return player
+
+        if shortcut is None:
+            return None
+
+        for player in players:
+            if player.get("Shortcut") != shortcut:
+                continue
+            if name is not None and player.get("Name") != name:
+                continue
+            if team_num is not None and player.get("TeamNum") != team_num:
+                continue
+            return player
+
+        for player in players:
+            if player.get("Shortcut") == shortcut:
+                return player
+
+        return None
+
+    def _remember_player(self, player):
+        self._tracked_primary_id = player.get("PrimaryId")
+        self._tracked_shortcut = player.get("Shortcut")
+        self._tracked_name = player.get("Name")
+        self._tracked_team_num = player.get("TeamNum")

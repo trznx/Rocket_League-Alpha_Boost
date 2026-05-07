@@ -5,12 +5,10 @@ Boost tespiti: Mouse tiklama + API dogrulamasi
 Hiz verisi: API'den gercek Speed (varsa), yoksa fizik tahmini
 """
 
-import pygame
 from pynput import keyboard
 import os
 import time
 import threading
-import sys
 import json
 import ctypes
 
@@ -22,10 +20,8 @@ SETTINGS_FILE = "user_settings.json"
 
 default_settings = {
     "volume": 0.4,
-    "audio_delay_ms": 0,
     "is_active": True,
     "shortcuts_enabled": True,
-    "unlimited_boost": False,
     "profile": "advanced",
 }
 
@@ -41,15 +37,21 @@ if os.path.exists(SETTINGS_FILE):
 else:
     user_settings = default_settings.copy()
 
+legacy_settings_removed = False
+for legacy_key in ("audio_delay_ms", "unlimited_boost"):
+    if user_settings.pop(legacy_key, None) is not None:
+        legacy_settings_removed = True
+
 def save_settings():
     with open(SETTINGS_FILE, "w") as f:
         json.dump(user_settings, f, indent=4)
 
+if legacy_settings_removed:
+    save_settings()
+
 SES_SEVIYESI = user_settings["volume"]
-AUDIO_DELAY_MS = user_settings.get("audio_delay_ms", 0)
 IS_ACTIVE = user_settings["is_active"]
 SHORTCUTS_ENABLED = user_settings.get("shortcuts_enabled", True)
-UNLIMITED_BOOST = user_settings.get("unlimited_boost", False)
 
 # ─── AUDIO ENGINE INIT ───────────────────────────────────────────────────────
 PROFILE = user_settings.get("profile", "advanced")
@@ -64,7 +66,6 @@ api.start()
 # ─── STATE VARIABLES ─────────────────────────────────────────────────────────
 is_sound_playing = False
 is_mouse_down = False
-boost_start_time = 0.0
 estimated_speed = 0.0
 
 # Fizik sabitleri (API baglantisi yokken kullanilir)
@@ -108,7 +109,7 @@ def engine_loop():
     API bagliysa ses ancak gercek boost harcamasi dogrulaninca calar.
     Hiz verisi: API baglantisindan Speed (yoksa fizik tahmini)
     """
-    global is_sound_playing, is_mouse_down, boost_start_time, estimated_speed
+    global is_sound_playing, is_mouse_down, estimated_speed
     
     last_update_time = time.time()
     last_rl_check_time = 0.0
@@ -142,12 +143,6 @@ def engine_loop():
         else:
             is_boosting = input_boosting
 
-        if is_boosting:
-            if boost_start_time == 0.0:
-                boost_start_time = current_time
-        else:
-            boost_start_time = 0.0
-        
         # ─── HIZ VERISI ──────────────────────────────────────────────────
         if api.connected:
             # API'den gercek hiz
@@ -168,23 +163,16 @@ def engine_loop():
         should_play = False
         
         if IS_ACTIVE and cached_rl_active and is_boosting:
-            # API bagliysa boost miktarini kontrol et
-            if api.connected and not UNLIMITED_BOOST:
+            if api.connected:
                 # Boost 0 ise ses calma (boost yok!)
                 if api.boost_amount > 0:
                     should_play = True
             else:
-                # API yoksa veya sinirsiz boost aciksa her zaman cal
+                # API yoksa her zaman cal
                 should_play = True
         
         # ─── SES YONETIMI ────────────────────────────────────────────────
-        delay_elapsed = (
-            AUDIO_DELAY_MS <= 0
-            or boost_start_time == 0.0
-            or (current_time - boost_start_time) >= (AUDIO_DELAY_MS / 1000.0)
-        )
-        
-        if should_play and not is_sound_playing and delay_elapsed:
+        if should_play and not is_sound_playing:
             audio.trigger_start()
             audio.play_loop(speed)
             is_sound_playing = True
@@ -222,26 +210,12 @@ def toggle_shortcuts():
     if app:
         app.update_shortcuts_state(SHORTCUTS_ENABLED)
 
-def toggle_unlimited_boost():
-    global UNLIMITED_BOOST
-    UNLIMITED_BOOST = not UNLIMITED_BOOST
-    user_settings["unlimited_boost"] = UNLIMITED_BOOST
-    save_settings()
-    if app:
-        app.update_unlimited_boost_state(UNLIMITED_BOOST)
-
 def set_volume(val):
     global SES_SEVIYESI
     SES_SEVIYESI = float(val)
     user_settings["volume"] = SES_SEVIYESI
     save_settings()
     audio.set_volume(SES_SEVIYESI)
-
-def set_delay(val):
-    global AUDIO_DELAY_MS
-    AUDIO_DELAY_MS = int(val)
-    user_settings["audio_delay_ms"] = AUDIO_DELAY_MS
-    save_settings()
 
 def set_profile(profile_name):
     global PROFILE
@@ -256,8 +230,6 @@ def on_press(key):
     try:
         if key == keyboard.Key.f5:
             toggle_active()
-        elif key == keyboard.Key.f4:
-            toggle_unlimited_boost()
     except AttributeError:
         pass
 
@@ -270,7 +242,6 @@ print("  ALPHA BOOST ENGINE (v2.0 - HYBRID) AKTIF")
 print(f"  Ses Seviyesi: %{int(SES_SEVIYESI * 100)}")
 print(f"  Boost Tespiti: Mouse + API Dogrulamasi")
 print(f"  Hiz Verisi: {'API (Gercek)' if api.connected else 'Fizik Tahmini'}")
-print(f"  Sinirsiz Boost: {'ACIK' if UNLIMITED_BOOST else 'KAPALI'}")
 print("=" * 50, flush=True)
 
 keyboard_listener = keyboard.Listener(on_press=on_press)
@@ -283,14 +254,10 @@ from interface import AlphaBoostApp
 engine_callbacks = {
     "toggle_active": toggle_active,
     "toggle_shortcuts": toggle_shortcuts,
-    "toggle_unlimited_boost": toggle_unlimited_boost,
     "get_active": lambda: IS_ACTIVE,
     "get_shortcuts": lambda: SHORTCUTS_ENABLED,
-    "get_unlimited_boost": lambda: UNLIMITED_BOOST,
     "get_volume": lambda: SES_SEVIYESI,
     "set_volume": set_volume,
-    "get_delay": lambda: AUDIO_DELAY_MS,
-    "set_delay": set_delay,
     "get_api_status": lambda: api.connected,
     "get_profile": lambda: PROFILE,
     "set_profile": set_profile,
