@@ -20,6 +20,7 @@ _archive/
 test_sounds/
 tools/
 docs/
+testers/
 
 # Medya / İşlenmiş Sesler
 *.mp4
