@@ -525,7 +525,7 @@ class AlphaBoostApp(ctk.CTk):
         self._profile_var = ctk.StringVar(value=current_profile.capitalize())
         self._profile_seg = ctk.CTkSegmentedButton(
             inner,
-            values=["Advanced", "Normal"],
+            values=["Advanced", "Quality", "Normal"],
             variable=self._profile_var,
             command=self._on_profile_change,
             font=ctk.CTkFont(family="Segoe UI", size=11, weight="bold"),
@@ -578,6 +578,8 @@ class AlphaBoostApp(ctk.CTk):
     def _get_profile_desc(self, profile):
         if profile == "advanced":
             return "Sound changes based on car speed"
+        if profile == "quality":
+            return "Higher-detail speed-based sound"
         return "Constant sound at all speeds"
 
     def _on_volume_change(self, val):
