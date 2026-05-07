@@ -147,14 +147,13 @@ class AlphaBoostAudioEngine:
         if target_sound is None:
             return
 
-        # Zaten aynı ses çalıyorsa tekrar başlatma
         if self._current_file == target_file and self._channel.get_busy():
             return
 
-        # Farklı ses veya ses çalmıyor → yeni ses başlat
         self._channel.stop()
         self._channel.set_volume(self._master_volume)
         self._channel.play(target_sound, loops=-1)
+
         self._current_file = target_file
         self._current_sound = target_sound
 
@@ -168,9 +167,10 @@ class AlphaBoostAudioEngine:
         pass
 
     def stop_loop(self):
-        """Sesi yumuşak bir şekilde kapatır (150ms fadeout)."""
+        """Sesi yumuşak bir şekilde kapatır."""
         if self._channel.get_busy():
-            self._channel.fadeout(150)
+            self._channel.fadeout(360)
+
         self._current_file = None
         self._current_sound = None
 
