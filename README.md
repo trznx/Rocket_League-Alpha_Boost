@@ -1,264 +1,251 @@
-# 🚀 Rocket League Alpha Boost Engine (Pure Audio Edition)
+# Rocket League Alpha Boost Engine
 
-[English](#english) - [Türkçe](#türkçe)
-
-I look forward to hearing your thoughts on this project. Please feel free to point out any missing features or areas that you believe need improvement. If you think there is a better method or a more efficient project out there, I would love for you to share it with me.
+[English](#english) | [Türkçe](#turkce)
 
 ---
 
-## English
+<a id="english"></a>
+## 🇬🇧 English
 
-### 🛡️ Easy Anti-Cheat (EAC) Security
-Like most people, I am someone who cares about account security.
-With the introduction of the new **Easy Anti-Cheat (EAC)** system in Rocket League, tools like `BakkesMod` have become impossible to use.
+## 🎬 Preview
 
-### 📝 About the Project
-This project is an intelligent audio engine that simulates the Alpha Boost sound using dynamic physics calculations.
-
-### ⛔️ The End of Alpha Boost (Gold Rush)...
-The use of the legendary Alpha Boost (Gold Rush) among players has unfortunately been restricted due to these circumstances. Many players are frustrated and forced to use similar-sounding boosts to capture the Alpha Boost feel. I developed this program to bring that iconic Alpha Boost experience back to life through a safe and external method. In the following sections, you can find detailed information about the technical operation and advantages of the system.
-
-### ✅ **Why is this Program 100% Safe?**
-- **No Memory Reading:** Unlike other tools, this program **never** touches Rocket League's RAM (memory).
-- **Pixel Analysis Only:** It works just like a human eye. It only looks at the pixels of your boost meter to decide when the sound should play.
-- **External Engine:** The audio engine runs completely independently of the game process.
-- **I Use It Personally:** I use this program on my main account. You can use it with complete peace of mind.
-
-### 💻 Interface
-Interface Overview: Get a quick and clear understanding of the program's interface and its features at a glance.
-
-<img width="434" height="706" alt="image" src="https://github.com/user-attachments/assets/d9f357b0-9e71-4a2c-abd1-479c7647852b" />
-
----
-
-> **Important Note:** This is an external audio simulator. Since we cannot interfere with the game's internal code, do not expect 100% perfect synchronization like in BakkesMod. Our goal is to provide the Alpha Boost feel as a professional audio layer.
-
-### 🎥 Video
-You can better understand how the program works and how the sounds are produced by examining the example videos. You can use any boost you want in-game!
+Before continuing, you can quickly understand what the program is by checking the video and screenshot below:
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/04fc5710-dfd4-4759-b48b-f19e51296ce9" width="100%" controls>
+  <video src="https://github.com/user-attachments/assets/8dcaedb0-ec1b-4ab3-bb69-4ab9269747d1" width="100%" controls>
     Your browser does not support the video tag.
   </video>
 </p>
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/9ba79b13-ad12-4ebb-ba3b-052724cee48c" width="100%" controls>
-    Your browser does not support the video tag.
-  </video>
-</p>
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/7a223084-ec5d-46bb-8aee-e0f501a05463" width="100%" controls>
-    Your browser does not support the video tag.
-  </video>
-</p>
+<img width="413" height="410" alt="image" src="https://github.com/user-attachments/assets/6c3c7bea-6a5d-45b7-82fa-0ed67bcd0b78" />
+
+
+### ✨ Overview
+
+**Alpha Boost Engine** is a desktop application built for players who want to experience the Alpha Boost sound without modifying game files or relying on different mod methods.
+
+This program does not add the real Alpha Boost item into the game or force-unlock it. Instead, it recreates the Alpha Boost sound by using external sound files and changing them according to your car speed in-game.
 
 ---
 
-### 🚀 How to Install?
+### 🛡️ Safety
 
-#### 📦 Method 1: Direct Download (More Practical)
-You can quickly and practically install the program by following these **"3 Steps + Calibration"**:
+This program is designed to stay away from the areas that players worry about the most.
 
-1. Go to the **[Releases](https://github.com/trznx/Rocket_League-Alpha_Boost/releases)** page.
-2. Download the `AlphaBoostEngine.exe` file.
-3. Create a folder with any name you like on your desktop. Then move the `AlphaBoostEngine.exe` file into the folder and run it.
-4. Follow the **Calibration** steps on the opened interface to complete the setup.
+- It does not modify Rocket League files.
+- It does not make any additional intervention to Rocket League files.
+- It does not read Rocket League files.
 
-#### 🎯 How to Calibrate?
-1. Enter **Freeplay** mode and set your **Boost** value to exactly **0**.
-2. Make sure your `Settings` > `Video` > `Display Mode` is set to **Borderless** or **Full Screen**.
-3. Click the **Run Calibration** button on the interface and return to your game screen before the 5-second countdown ends.
-> 3.1. If you are using **Method 2**, start the calibration via `python kalibrasyon.py`.
-4. A screenshot will be taken after the countdown ends. You can see this screenshot by hovering your mouse cursor over the `.exe` file on your taskbar.
-5. Make the screenshot full screen and carefully select the area that neatly covers the **0** digit in your **Boost** bar.
-6. Complete the process by pressing the Enter or Space key.
-7. Close `AlphaBoostEngine.exe` and restart the application to apply the changes.
-
-‼️ **Note:** If I release new versions in the future, simply downloading the latest `.exe` file and replacing the old one will be enough.
-
-⚠️ **WARNING 1:** Remember that all your files must be in the same folder.
-
-⚠️ **WARNING 2:** Do not change your `Settings` > `Interface` > `Interface Scale & Display Scale` values after calibration. If you change your **Interface Scale** or **Display Scale** after calibrating, you may have to recalibrate. The program may not be able to correctly check your **Boost** status.
-
-⚠️ **WARNING 3:** Your **Boost** bar must be visible for the program to work correctly.
-
-> Once the installation is complete, your project directory should have the following structure:
+⚪️ It works as an external audio application. In short, it is an ideal solution for players who are concerned about the **Easy Anti-Cheat** system.
 
 ---
 
-#### 🐍 Method 2: Python (For Developers)
-1. Install Python.
-2. Run the `pip install -r requirements.txt` command.
-3. Start with `python main.py`.
+### ❔ How It Works?
 
----
+The audio engine basically combines these three conditions (API):
 
-### 📌 A Few Small Notes
+- Instant tracking of whether boost is being pressed,
+- Checking whether the boost amount is being consumed,
+- Instant monitoring of the car speed,
 
-- **Training Mode (Unlimited Boost):** While in training mode (if unlimited boost is enabled), you should set the `Freeplay Mode` to `Enabled` on the interface or quickly press `F4` to toggle between `Enabled/Disabled` states. This setting is important to prevent incorrect boost sounds.
-- **In-Game Status:** When entering online (Casual, Ranked) or offline matches (i.e., all situations where you cannot have unlimited boost), you should set `Freeplay Mode` to `Disabled` or quickly press `F4` to switch to this mode to avoid audio issues.
-
+⚪️ By blending this data together, the program determines when the Alpha Boost sound should play and in what tone it should play according to speed. Thanks to this smart structure, unnecessary sound triggers are prevented during goal replays or when your boost amount is **0** and you still press the button.
+  
 ---
 
 ### 👥 Profiles
 
-- **Classic Original Sound:** The boost sound at your car's maximum speed is heard at normal volume.
-- **Quiet Loop Sound (Recommended):** The boost sound at your car's maximum speed is heard at a lower volume level. This way, you can prevent desync issues.
-- **Low-RPM Start Sound:** The boost sound does not change according to your car's speed and is always heard the same way.
+You can test every profile and choose the one that suits you best.
 
-‼️ **Note:** These profiles may vary from person to person, so it may be a more logical choice to try all profiles and use the one that suits you best.
-
-❓ **Information:** Since we cannot directly access speed data due to EAC restrictions, we estimate vehicle speed using mathematical models. This situation can lead to short-term synchronization differences between audio and visuals, especially during sudden decelerations (collisions, etc.). However, you will easily get used to this dynamic structure within a few matches.
-
-> Getting used to this sound can take a few hours or a few matches. Once you get used to it, you will be able to use it comfortably.
+| Profile | Description | Short Note |
+| --- | --- | --- |
+| `Quality` | The profile that reacts to speed in the most detailed way and has smoother transitions | Best Choice |
+| `Advanced` | The profile that reacts to speed but has a higher sound level | Louder Sound |
+| `Normal` | A constant profile that plays the same sound at all speeds | Simplest Use |
 
 ---
 
-### 💡 Recommendations from the Developer
-- **In-Game Settings:** Use `Standard Boost` or select any boost you want and turn on the `Use Standard Boost Sound` feature in `Settings` -> `Audio`.
-- **Volume Balance:** Lower in-game sounds or increase the **Alpha Boost** volume from the program's interface so that in-game sounds do not drown out the **Alpha Boost** sound.
-- **Delay:** For smoother Alpha Boost usage, set the `Audio Start Delay` to `0ms` (the default value). If this is not suitable for you, you can choose the most appropriate delay value by personally testing delay values in training mode.
-- **Tips:** Be sure to read the "Tips & Info" section on the interface.
+### ❇️ Installation Steps
 
-### 🛠️ Developer's Method (My Personal Method)
-- For the most realistic feel, I recommend keeping the Alpha Boost volume level between **20%-35% (variable)** on the interface and playing light music in the background. The music naturally masks the very small software-generated synchronization differences, perfectly simulating the BakkesMod feel. You can optimize the volume level according to your own Windows/Game settings. However, hearing the sound as a **background layer** will significantly increase the realism of the experience.
+#### 1️⃣ - Download the Program:
 
-- If you want the exact original Alpha Boost mechanics in-game and feel that this program will not meet your expectations, the method I described above will be very helpful. Hearing the Alpha Boost sound faintly will perfectly create the "I'm really using Alpha Boost!" feeling in you.
+- Download the latest version [from here](https://github.com/trznx/Rocket_League-Alpha_Boost/releases) and place the `.exe` file on your desktop or inside any folder you want.
+
+- Then run the `.exe` file.
+
+#### 2️⃣ - API Configuration:
+
+🔗 Default file path for **Steam** users:
+
+```text
+C:\Program Files (x86)\Steam\steamapps\common\rocketleague\TAGame\Config\DefaultStatsAPI.ini
+```
+
+🔗 Default file path for **Epic Games** users:
+
+```text
+C:\Program Files\Epic Games\rocketleague\TAGame\Config\DefaultStatsAPI.ini
+```
+
+✏️ Then edit this file as follows and save it:
+
+```ini
+Port=49123
+PacketSendRate=120
+```
+
+`PacketSendRate=60` also works, but `120` is recommended for a better experience.
+
+#### 3️⃣ - Restart the Game:
+
+After completing all steps, restart your game.
+
+#### ⚠️ - Status Checks:
+
+You can check the following statuses to make sure the program is working correctly:
+
+🟢 `CONNECTED`: If you see this text in the **API Connection** section of the program, the process is complete.
+
+🟠 `WAITING...`: If you see this text in the **API Connection** section of the program, make sure you configured the file correctly and restarted the game. If neither helps, try closing and reopening the program.
 
 ---
 
-### 📜 License
-This project is protected by the **MIT License**.
-You are completely free to develop, improve, and share this project. We encourage the community to make better versions! However, since it is based on this original work, all improvements must maintain this license and credit the original project.
+### 📌 General Recommendations
 
+To experience the Alpha Boost sound in a better way, it is recommended that you follow these suggestions:
 
----
----
+- Use the recommended profile, `Quality`.
+- Set the `PacketSendRate` value in the API file to `120`.
+- Check that the program volume is not low or muted in the **Windows Volume Mixer**.
+- Lower your in-game sound level so it does not overpower the **Alpha Boost** sound (recommended). Alternatively, increase the **Volume** value in the program.
+- Find the best audio levels according to your own sound setup and use them that way. For a better experience, it is recommended not to keep the **Volume** value too high.
 
-## Türkçe
+For the `Quality` profile, it is recommended to keep the **Volume** value at 50% or below.
 
-### 🛡️ Easy Anti-Cheat (EAC) Güvenliği
-Ben de diğer çoğu insan gibi hesap güvenliğini düşünenlerdenim.
-Rocket League'e yeni gelen bir sistem olan **Easy Anti-Cheat (EAC)** ile birlikte `BakkesMod` gibi araçların kullanımı artık imkânsız hâle geldi.
+For the `Advanced` profile, it is recommended to keep the **Volume** value at 30% or below.
 
-### 📝 Proje Hakkında
-Bu proje, Alpha Boost sesini dinamik fizik hesaplamalarıyla simüle eden akıllı bir ses motorudur.
+### 📄 License
 
-### ⛔️ Alpha Boost (Gold Rush) Sonu...
-Oyuncular arasında efsaneleşen Alpha Boost (Gold Rush) kullanımı ne yazık ki bu durumlardan ötürü kısıtlanmış oldu. Birçok oyuncu bu durumdan şikayetçi ve Alpha Boost hissiyatını yakalayabilmek için benzer sesli boostlar (takviyeler) kullanmak zorunda kalıyorlar. Bu programı, Alpha Boost'un o ikonik deneyimini güvenli ve harici bir yöntemle yeniden hayata döndürmek için geliştirdim. Aşağıdaki bölümlerde, sistemin teknik işleyişi ve sunduğu avantajlar hakkında detaylı bilgi edinebilirsiniz.
-
-### ✅ **Bu Program Neden %100 Güvenli?**
-- **Hafıza Okumaz:** Diğer araçların aksine, bu program Rocket League'in RAM'ine (hafızasına) **asla** dokunmaz.
-- **Sadece Piksel Analizi:** Tıpkı bir insan gözü gibi çalışır. Sadece boost (takviye) sayacınızdaki piksellere bakarak sesin ne zaman çalacağına karar verir.
-- **Harici Motor:** Ses motoru oyun sürecinden tamamen bağımsız çalışır.
-- **Bizzat Kullanıyorum:** Ben (geliştirici) bu programı kendi ana hesabımda kullanıyorum. Tamamen gönül rahatlığıyla kullanabilirsiniz.
-
-### 💻 Arayüz
-Programın arayüzü hakkında hızlı ve kolay bir şekilde bilgi edinebilirsiniz.
-
-<img width="434" height="706" alt="image" src="https://github.com/user-attachments/assets/d9f357b0-9e71-4a2c-abd1-479c7647852b" />
+This project is released under the MIT License.
 
 ---
 
+<a id="turkce"></a>
+## 🇹🇷 Türkçe
 
-> **Önemli Not:** Bu harici bir ses simülatörüdür. Oyunun iç koduna müdahale edemediğimiz için BakkesMod'daki gibi %100 kusursuz bir senkronizasyon beklememelisiniz. Amacımız, profesyonel bir ses katmanı olarak Alpha Boost hissiyatını yaşatmaktır.
+## 🎬 Ön İzleme
 
-### 🎥 Video
-Örnek videoları inceleyerek programın nasıl çalıştığını ve seslerin nasıl çıktığını daha rahat bir şekilde anlayabilirsiniz. Oyun içerisinde, istediğiniz boostu kullanabilirsiniz! 
+Devam etmeden önce aşağıdaki videoyu ve ekran görüntüsünü inceleyerek program hakkında hızlı bir şekilde bilgi sahibi olabilirsiniz:
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/04fc5710-dfd4-4759-b48b-f19e51296ce9" width="100%" controls>
-    Tarayıcınız video etiketini desteklemiyor.
+  <video src="https://github.com/user-attachments/assets/8dcaedb0-ec1b-4ab3-bb69-4ab9269747d1" width="100%" controls>
+    Your browser does not support the video tag.
   </video>
 </p>
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/9ba79b13-ad12-4ebb-ba3b-052724cee48c" width="100%" controls>
-    Tarayıcınız video etiketini desteklemiyor.
-  </video>
-</p>
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/7a223084-ec5d-46bb-8aee-e0f501a05463" width="100%" controls>
-    Tarayıcınız video etiketini desteklemiyor.
-  </video>
-</p>
+<img width="413" height="410" alt="image" src="https://github.com/user-attachments/assets/6c3c7bea-6a5d-45b7-82fa-0ed67bcd0b78" />
+
+
+### ✨ Genel Bakış
+
+**Alpha Boost Engine**, oyun dosyalarını değiştirmeden ve farklı mod yöntemlerine ihtiyaç duymadan Alpha Boost ses deneyimi yaşamak isteyen oyuncular için hazırlanmış bir masaüstü uygulamasıdır.
+
+Bu program gerçek Alpha Boost ögesini oyuna eklemez veya zorla açmaz. Bunun yerine harici ses dosyalarından oluşmuş sesleri kullanarak oyundaki araba hızınıza bağlı olacak şekilde değiştirerek Alpha Boost sesini oluşturur.
 
 ---
 
-### ⚙️ Kurulum ve Hazırlık
+### 🛡️ Güvenlik
 
-#### 📦 Yöntem 1: Doğrudan İndirme (Daha Pratik)
-Hızlı ve pratik bir şekilde aşağıdaki **"3 Adım + Kalibrasyon"** aşamalarını takip ederek programı kurabilirsiniz:
+Bu program, oyuncuların en çok çekindiği alanlardan uzak duracak şekilde tasarlanmıştır.
 
-1. **[Releases](https://github.com/trznx/Rocket_League-Alpha_Boost/releases)** sayfasına gidin.
-2. `AlphaBoostEngine.exe` dosyasını indirin.
-3. Masaüstünüzde istediğiniz isme sahip bir klasör oluşturun. Ardından `AlphaBoostEngine.exe` dosyasını klasörün içerisine atın ve bu dosyayı çalıştırın.
-4. Açılan arayüzde **Kalibrasyon** adımlarını uygulayın ve kurulumu tamamlayın.
+- Rocket League dosyalarını değiştirmez.
+- Rocket League dosyalarına herhangi bir ek müdahalede bulunmaz.
+- Rocket League dosyalarını okumaz.
 
-#### 🎯 Kalibrasyon Nasıl Yapılır?
-1. **Serbest Oyun** moduna girin ve **Boost** değerinizi tam olarak **0** yapın.
-2. `Ayarlar` > `Görüntü` > `Ekran Modu` kısmının **Sınırsız** veya **Tam Ekran** olduğundan emin olun.
-3. Arayüzdeki **Run Calibration** butonuna tıklayın ve 5 saniyelik geri sayım bitmeden oyun ekranınıza dönün.
-> 3.1. Eğer **Yöntem 2**'yi kullanıyorsanız `python kalibrasyon.py` üzerinden kalibrasyonu başlatın.
-4. Geri sayım bittikten sonra bir ekran görüntüsü alınacaktır. Bu ekran görüntüsünü görev çubuğunuzdaki `.exe` dosyasının üzerine fare imleciniz ile gelerek görebilirsiniz.
-5. Ekran görüntüsünü tam ekran yapın ve **Boost** barınızdaki **0** rakamını düzgünce kapsayacak bir şekilde seçim yapın.
-6. Enter veya Space tuşuna basarak işlemi tamamlayın.
-7. `AlphaBoostEngine.exe` dosyasını kapatıp yeniden çalıştırın.
-
-‼️ **Not:** Eğer ilerleyen zamanlarda yeni sürümler yayımlarsam yalnızca son sürümdeki `.exe` dosyasını indirip eski `.exe` dosyası ile değiştirmeniz yeterli olacaktır.
-
-⚠️ **UYARI 1:** Tüm dosyalarınızın aynı klasörün içerisinde olması gerektiğini unutmayın.
-
-⚠️ **UYARI 2:** Kalibrasyon yaptıktan sonra `Ayarlar` > `Arayüz` > `Arayüz Ölçeği & Ekran Ölçeği` değerlerini asla değiştirmeyin (değiştirip eski hâline getirme işlemini bile yapmayın). Eğer **Arayüz Ölçeği** veya **Ekran Ölçeği** değerlerinizi kalibrasyon işlemi yaptıktan sonra değiştirirseniz `tekrardan` kalibrasyon yapmak zorunda kalabilirsiniz. Çünkü program düzgün bir şekilde **Boost (Takviye)** durumunuzu kontrol edemeyebilir ve bundan dolayı **Boost (Takviye)** değeriniz **0** olsa bile **Boost** basmaya çalıştığınızda ses duyabilirsiniz.
-
-⚠️ **UYARI 3:** Programın düzgün bir şekilde çalışabilmesi için **Boost (Takviye)** barınızın `kesinlikle` görünür olması şarttır.
-
-> Kurulumu tamamladığınızda klasörünüzde şu şekilde bir dosya düzeninin oluşması beklenir:
-<img width="615" height="182" alt="image" src="https://github.com/user-attachments/assets/9501ee51-429d-42fb-9ae9-514f2ad77ddc" />
-
+⚪️ Harici bir ses uygulaması olarak çalışır. Kısacası, **Easy Anti-Cheat** sisteminden çekinen oyuncular için ideal bir çözümdür.
 
 ---
 
-#### 🐍 Yöntem 2: Python (Geliştiriciler için)
-1. Python yükleyin.
-2. `pip install -r requirements.txt` komutunu çalıştırın.
-3. `python main.py` ile başlatın.
+### ❔ Nasıl Çalışır?
+
+Ses motoru temelde şu üç durumu bir araya getirir (API):
+
+- Boost basılıp basılmadığının anlık olarak takibi,
+- Boost miktarının harcanma durumunun kontrolü,
+- Araba hızının anlık olarak kontrolü,
+
+⚪️ Bu veriler harmanlanarak Alpha Boost sesinin ne zaman ve hangi tonda (hıza duyarlı olarak) çalacağı belirlenir. Bu akıllı yapı sayesinde, gol tekrarlarında veya boost miktarınız **0** iken tuşa bastığınızda sesin gereksiz yere tetiklenmesi önlenir.
+  
+---
+
+### 👥 Profiller
+
+Her profili test edip size en uygun olanı seçebilirsiniz.
+
+| Profil | Açıklama | Kısa Bilgi |
+| --- | --- | --- |
+| `Quality` | Hıza göre en detaylı tepki veren ve geçişleri daha yumuşak olan profil | En İyi Seçim |
+| `Advanced` | Hıza göre tepki veren fakat ses düzeyi daha yüksek olan profil | Daha Gür Ses |
+| `Normal` | Tüm hızlarda aynı sesi veren sabit profil | En Sade Kullanım |
 
 ---
 
-### 📌 Küçük Birkaç Not
+### ❇️ Kurulum Aşamaları
 
-- **Antrenman Modu (Sınırsız Boost):** Antrenman modundayken (sınırsız boost özelliğiniz açıksa) arayüz üzerinden `Freeplay Mode` kısmını `Enabled` durumuna getirmelisiniz veya hızlıca `F4` tuşuna basarak da `Enabled/Disabled` durumları arasında geçiş yapabilirsiniz. Bu ayarın önemi, boost sesinin hatalı gelmesini önlemek içindir.
-- **Oyun İçi Durum:** Çevrim içi (Normal, Dereceli) veya çevrim dışı maç girerken (yani sınırsız boost özelliğinizin olamayacağı tüm durumlarda) ses sorunu yaşamamanız için `Freeplay Mode` kısmını `Disabled` durumuna getirmelisiniz veya hızlıca `F4` tuşuna basarak da bu duruma getirebilirsiniz.
+#### 1️⃣ - Programı İndir:
+
+- En güncel sürümü [buradan indirin](https://github.com/trznx/Rocket_League-Alpha_Boost/releases) ve `.exe` dosyasını masaüstünüze veya başka bir klasörün içerisine atın.
+
+- Ardından `.exe` dosyasını çalıştırın.
+
+#### 2️⃣ - API Yapılandırması:
+
+🔗 **Steam** kullanıcıları için varsayılan dosya yolu:
+
+```text
+C:\Program Files (x86)\Steam\steamapps\common\rocketleague\TAGame\Config\DefaultStatsAPI.ini
+```
+
+🔗 **Epic Games** kullanıcıları için varsayılan dosya yolu:
+
+```text
+C:\Program Files\Epic Games\rocketleague\TAGame\Config\DefaultStatsAPI.ini
+```
+
+✏️ Ardından bu dosyayı şu şekilde düzenleyin ve kaydedin:
+
+```ini
+Port=49123
+PacketSendRate=120
+```
+
+`PacketSendRate=60` değeri için de çalışır ancak daha iyi bir deneyim için `120` önerilir.
+
+#### 3️⃣ - Oyunu Yeniden Başlat:
+
+Tüm işlemleri bitirdikten sonra oyununuzu yeniden başlatın.
+
+#### ⚠️ - Durum Kontrolleri:
+
+Programın doğru bir şekilde çalışıp çalışmadığından emin olmak için şu durumları kontrol edebilirsiniz:
+
+🟢 `CONNECTED`: Programdaki **API Connection** kısmında bu yazı yazıyorsa süreç tamamlanmıştır.
+
+🟠 `WAITING...`: Programdaki **API Connection** kısmında bu yazı yazıyorsa dosyayı doğru yapılandırdığınızdan ve oyunu yeniden başlattığınızdan emin olun. Her iki durum da işe yaramazsa programı kapatıp yeniden açmayı deneyin.
 
 ---
 
-### 👥 Profiller 
+### 📌 Genel Tavsiyeler
 
-- **Classic Original Sound:** Arabanızın maksimum hızındaki boost sesi normal seste duyulur.
-- **Quiet Loop Sound (Recommended):** Arabanızın maksimum hızındaki boost sesi daha düşük bir ses seviyesinde duyulur. Bu sayede senkronize olmama durumunun önüne geçebilirsiniz.
-- **Low-RPM Start Sound:** Boost sesi arabanızın hızına göre değişiklik göstermez ve hep aynı şekilde duyulur.
+Alpha Boost sesini daha iyi deneyimlemek için bu tavsiyelere uymanız önerilir:
 
-‼️ **Not:** Bu profiller kişiden kişiye değişiklik gösterebilir, bu yüzden tüm profilleri deneyerek kendinize en çok uyan profili kullanmanız daha mantıklı bir seçim olabilir.
+- Önerilen profil olan `Quality` profilini kullanın.
+- API dosyasındaki `PacketSendRate` değerini `120` olarak ayarlayın.
+- Programın ses düzeyinin **Windows Ses Karıştırıcısı** bölümünde kısık veya sessizde olmadığını kontrol edin.
+- Oyun içi ses düzeyinizi, **Alpha Boost** sesini bastırmaması için düşürün (önerilen). Alternatif olarak programdaki **Volume** değerini artırın.
+- Kendi ses seviyelerinize göre en iyi ses düzeylerini bulun ve ona göre kullanın. Daha iyi bir deneyim için **Volume** değerini yüksek tutmamanız önerilir.
 
-❓ **Bilgilendirme:** EAC kısıtlamaları nedeniyle hız verisine doğrudan erişemediğimiz için araç hızını matematiksel modellerle tahmin ediyoruz. Bu durum, özellikle ani yavaşlamalarda (çarpışma vb.) ses ile görsel arasında kısa süreli senkronizasyon farklarına yol açabilir. Ancak bu dinamik yapıya birkaç maç içerisinde kolayca alışılmaktadır.
+`Quality` profili için **Volume** değerini %50 ve daha altında tutmanız önerilir.
 
-> Bu sese alışmanız birkaç saat veya birkaç maç sürebilir. Alıştıktan sonra rahatlıkla kullanabileceksiniz.
+`Advanced` profili için **Volume** değerini %30 ve daha altında tutmanız önerilir.
 
----
+### 📄 Lisans
 
-  ### 💡 Geliştirici'den Tavsiyeler
-- **Oyun İçi Ayarlar:** `Standart Boost` kullanın ya da istediğiniz bir boostu seçip `Ayarlar` -> `Ses` kısmından `Standart Boost Sesini Kullan` özelliğini açın.
-- **Ses Dengesi:** Oyun içi sesleri kısın veya programın arayüzünden **Alpha Boost** sesini artırın ki oyun içi sesler **Alpha Boost** sesini bastırmasın.
-- **Gecikme:** Daha düzgün bir Alpha Boost kullanımı için `Audio Start Delay` ayarını `0ms` yani varsayılan değer olarak ayarlayın. Eğer bu durum size uygun değilse antrenman modunda bizzat gecikme değerlerini deneyerek size en uygun olan gecikme değerini seçebilirsiniz.
-- **İpuçları:** Arayüzdeki "Tips & Info" kısmını mutlaka okuyun.
-
-### 🛠️ Geliştirici'nin Yöntemi (Benim Şahsi Yöntemim)
-- En gerçekçi hissiyat için Alpha Boost ses seviyesini arayüz üzerinden **%20-%35 (değiştirilebilir)** aralığında tutmanızı ve arkada hafif bir müzik açmanızı öneririm. Müzik, yazılımsal olarak oluşan çok küçük senkronizasyon farklarını doğal bir şekilde maskeleyerek BakkesMod hissiyatını mükemmel şekilde simüle eder. Ses seviyesini kendi Windows/Oyun ayarlarınıza göre optimize edebilirsiniz. Ancak sesi bir **arka plan katmanı** gibi duymak deneyimin gerçekçiliğini önemli ölçüde artıracaktır.
-
-- Eğer oyundaki orijinal Alpha Boost mekaniğini birebir istiyorsanız ve bu program sizin beklentilerinizi karşılamayacak gibi hissettiriyorsa yukarıda anlattığım yöntem çok işinize yarayacaktır. Alpha Boost sesini hafiften duymanız "Gerçekten Alpha Boost kullanıyorum!" hissini sizde mükemmel bir şekilde oluşturacaktır.
-
----
-
-### 📜 Lisans
-Bu proje **MIT Lisansı** ile korunmaktadır.
-Bu projeyi geliştirmekte, iyileştirmekte ve paylaşmakta tamamen özgürsünüz. Topluluğun daha iyi sürümler yapmasını teşvik ediyoruz! Ancak, bu orijinal çalışmayı temel aldığı için, yapılan tüm geliştirmelerin bu lisansı koruması ve orijinal projeye atıfta bulunması zorunludur.
+Bu proje MIT Lisansı ile sunulmaktadır.
