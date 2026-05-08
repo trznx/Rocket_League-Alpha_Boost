@@ -1,14 +1,10 @@
 """
 Alpha Boost Engine - TCP API Client
-=====================================
-Rocket League'in RESMI Stats API'sine (TCP localhost:49123) baglanir.
-Bu bir WebSocket DEGIL, ham TCP soketidir!
 
-Oyun sunucu gorevindedir ve port 49123 uzerinden JSON verisi yayinlar.
-Bizim programimiz client olarak bu porta baglanir.
-
-Aktivasyon:
-  TAGame/Config/DefaultStatsAPI.ini -> PacketSendRate=120, Port=49123
+Connects to Rocket League's local Stats API over raw TCP.
+Each user must enable the API on their own installation by configuring
+`DefaultStatsAPI.ini` locally. The repository does not include personal
+configuration files or account-specific data.
 """
 
 import threading
@@ -138,8 +134,6 @@ class RocketLeagueAPI:
                 
                 # Veri tamponu - TCP parcali veri gonderebilir
                 buffer = ""
-                raw_debug_shown = False
-                
                 while self._running:
                     try:
                         data = sock.recv(self.BUFFER_SIZE)
@@ -148,12 +142,6 @@ class RocketLeagueAPI:
                             break
                         
                         decoded = data.decode("utf-8", errors="replace")
-                        
-                        # DEBUG: Ilk gelen ham veriyi goster
-                        if not raw_debug_shown:
-                            preview = decoded[:500].replace('\n', '\\n').replace('\r', '\\r')
-                            print(f"  [API] HAM VERI (ilk {len(decoded)} byte): {preview}", flush=True)
-                            raw_debug_shown = True
                         
                         buffer += decoded
                         

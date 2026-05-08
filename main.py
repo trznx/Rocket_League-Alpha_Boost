@@ -19,10 +19,10 @@ from api_client import RocketLeagueAPI
 SETTINGS_FILE = "user_settings.json"
 
 default_settings = {
-    "volume": 0.4,
+    "volume": 0.45,
     "is_active": True,
     "shortcuts_enabled": True,
-    "profile": "advanced",
+    "profile": "quality",
 }
 
 if os.path.exists(SETTINGS_FILE):

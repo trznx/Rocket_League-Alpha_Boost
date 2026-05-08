@@ -577,9 +577,9 @@ class AlphaBoostApp(ctk.CTk):
 
     def _get_profile_desc(self, profile):
         if profile == "advanced":
-            return "Sound changes based on car speed"
+            return "Sound changes based on car speed (Loud-Noise)"
         if profile == "quality":
-            return "Higher-detail speed-based sound"
+            return "Higher-detail speed-based sound (Recommended)"
         return "Constant sound at all speeds"
 
     def _on_volume_change(self, val):
@@ -588,7 +588,7 @@ class AlphaBoostApp(ctk.CTk):
     def _build_tips(self, parent):
         self._tips_section = CollapsibleSection(
             parent,
-            hint_text="Usage tips & important info",
+            hint_text="Usage Tips & Info",
             btn_show="Show",
             btn_hide="Hide",
             icon_name="ic_info.png",
@@ -599,13 +599,18 @@ class AlphaBoostApp(ctk.CTk):
         tips = [
             (
                 "API Connection",
-                "Set the PacketSendRate value in DefaultStatsAPI.ini to 60/120.",
+                "Set the PacketSendRate value in DefaultStatsAPI.ini to 120.",
                 "#52D27E",
             ),
             (
                 "Volume Level",
                 "High volume usage can negatively affect sound quality.",
                 "#6CA7D9",
+            ),
+                        (
+                "In-Game Audio",
+                "Set your in-game audio low enough to keep the Alpha Boost sound clear.",
+                "#0492C2",
             ),
             (
                 "Profiles",
@@ -650,7 +655,7 @@ class AlphaBoostApp(ctk.CTk):
         footer.pack(fill="x", pady=(2, 0))
         ctk.CTkLabel(
             footer,
-            text="Alpha Boost Engine v2.0.0 (API Edition)  |  by trznx",
+            text="Alpha Boost Engine v2.0.0 |  by trznx",
             font=ctk.CTkFont(family="Segoe UI", size=9),
             text_color=COLORS["text_muted"],
         ).pack()

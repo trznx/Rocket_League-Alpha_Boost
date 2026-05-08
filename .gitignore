@@ -4,6 +4,7 @@ __pycache__/
 
 # PyInstaller / Derleme Çıktıları
 build/
+build_output/
 dist/
 *.spec
 build.bat
@@ -22,6 +23,13 @@ tools/
 docs/
 testers/
 
+# Eski Profiller
+classic/
+low_rpm/
+other/
+quiet_loop/
+quiet_loop_2/
+
 # Medya / İşlenmiş Sesler
 *.mp4
 *.wav_processed
@@ -29,3 +37,29 @@ testers/
 # IDE / Editör Dosyaları
 .vscode/
 .idea/
+
+# Sanal Ortamlar / Cache / Test Çıktıları
+.venv/
+venv/
+env/
+.env
+.env.*
+*.local
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+pip-wheel-metadata/
+
+# Paketler / Loglar / Geçici Dosyalar
+*.exe
+*.zip
+*.log
+*.tmp
+*.bak
+*.db
+*.sqlite3
+Thumbs.db
