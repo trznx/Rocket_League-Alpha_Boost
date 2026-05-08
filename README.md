@@ -1,383 +1,253 @@
 # Rocket League Alpha Boost Engine
 
+External Alpha Boost-style audio for Rocket League, powered by the local Stats API.
+
 [English](#english) | [Türkçe](#turkce)
-
-Rocket League Alpha Boost Engine is a Windows desktop app that recreates the Alpha Boost feel with external audio playback driven by Rocket League's local Stats API and local boost input.
-
-The current version does not use screen reading or calibration.
 
 ---
 
 <a id="english"></a>
-## English
+## 🇬🇧 English
 
-### Overview
+## 🎬 Preview
 
-This project is built for players who want an Alpha Boost style audio experience without modifying Rocket League files or injecting into the game process.
+Before continuing, you can quickly understand what the program is by checking the video and screenshot below:
 
-The app combines:
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/8dcaedb0-ec1b-4ab3-bb69-4ab9269747d1" width="100%" controls>
+    Your browser does not support the video tag.
+  </video>
+</p>
+<img width="413" height="410" alt="image" src="https://github.com/user-attachments/assets/6c3c7bea-6a5d-45b7-82fa-0ed67bcd0b78" />
 
-- Rocket League's local Stats API
-- Local boost button detection
-- Speed-based sound profile playback
 
-This makes playback far more reliable than a simple key listener and helps prevent false triggers during countdown, no-boost states, and other edge cases.
+### ✨ Overview
 
-### Current Features
+**Alpha Boost Engine** is a desktop application built for players who want to experience the Alpha Boost sound without modifying game files or relying on different mod methods.
 
-- Official local Stats API support over `127.0.0.1:49123`
-- Reliable boost detection using both input state and real API-confirmed boost activity
-- Multiplayer-safe player tracking
-- Three selectable sound profiles:
-  - `Advanced`
-  - `Quality`
-  - `Normal`
-- Live API connection indicator in the interface
-- Volume control and quick engine toggle support
-- No memory scanning, no DLL injection, no pixel calibration
+This program does not add the real Alpha Boost item into the game or force-unlock it. Instead, it recreates the Alpha Boost sound by using external sound files and changing them according to your car speed in-game.
 
-### How It Works
+---
 
-The engine decides when to play sound by combining:
+### 🛡️ Safety
 
-- Local boost input
-- API-confirmed boost usage
-- Current vehicle speed from the API
+This program is designed to stay away from the areas that players worry about the most.
 
-This prevents common problems such as:
+- It does not modify Rocket League files.
+- It does not make any additional intervention to Rocket League files.
+- It does not read Rocket League files.
 
-- False playback while pressing boost during kickoff countdown
-- Playback when boost cannot actually be consumed
-- Missing or unstable speed-reactive transitions in normal gameplay
+⚪️ It works as an external audio application. In short, it is an ideal solution for players who are concerned about the **Easy Anti-Cheat** system.
 
-### Profiles
+---
 
-| Profile | Behavior | Source Folder |
+### ❔ How It Works?
+
+The audio engine basically combines these three conditions (API):
+
+- Instant tracking of whether boost is being pressed,
+- Checking whether the boost amount is being consumed,
+- Instant monitoring of the car speed,
+
+⚪️ By blending this data together, the program determines when the Alpha Boost sound should play and in what tone it should play according to speed. Thanks to this smart structure, unnecessary sound triggers are prevented during goal replays or when your boost amount is **0** and you still press the button.
+  
+---
+
+### 👥 Profiles
+
+You can test every profile and choose the one that suits you best.
+
+| Profile | Description | Short Note |
 | --- | --- | --- |
-| `Advanced` | Speed-reactive playback with 4 sound bands | `assets/sounds/alpha_boost_advanced` |
-| `Quality` | Speed-reactive playback with 6 sound bands | `assets/sounds/alpha_boost_quality` |
-| `Normal` | Constant playback at all speeds | `assets/sounds/alpha_boost_normal` |
+| `Quality` | The profile that reacts to speed in the most detailed way and has smoother transitions | Best Choice |
+| `Advanced` | The profile that reacts to speed but has a higher sound level | Louder Sound |
+| `Normal` | A constant profile that plays the same sound at all speeds | Simplest Use |
 
-#### Advanced Profile Mapping
+---
 
-| Speed | File |
-| --- | --- |
-| `0-500 uu/s` | `0_gr.wav` |
-| `501-1000 uu/s` | `750_gr.wav` |
-| `1001-1500 uu/s` | `1400_gr.wav` |
-| `1501+ uu/s` | `1700_gr.wav` |
+### ❇️ Installation Steps
 
-#### Quality Profile Mapping
+#### 1️⃣ - Download the Program:
 
-| Speed | File |
-| --- | --- |
-| `0-300 uu/s` | `gr_level_150.wav` |
-| `301-600 uu/s` | `gr_level_450.wav` |
-| `601-900 uu/s` | `gr_level_750.wav` |
-| `901-1200 uu/s` | `gr_level_1050.wav` |
-| `1201-1500 uu/s` | `gr_level_1350.wav` |
-| `1501+ uu/s` | `gr_level_1650.wav` |
+- Download the latest version [from here](https://github.com/trznx/Rocket_League-Alpha_Boost/releases) and place the `.exe` file on your desktop or inside any folder you want.
 
-### Safety Notes
+- Then run the `.exe` file.
 
-This tool is designed as an external companion application.
+#### 2️⃣ - API Configuration:
 
-- It does not patch Rocket League files.
-- It does not inject into the Rocket League process.
-- It does not scan Rocket League memory.
-- It depends on Rocket League's own local Stats API plus local input state.
+🔗 Default file path for **Steam** users:
 
-Each user must enable the Stats API locally on their own game installation.
+```text
+C:\Program Files (x86)\Steam\steamapps\common\rocketleague\TAGame\Config\DefaultStatsAPI.ini
+```
 
-### Enable the Rocket League Stats API
+🔗 Default file path for **Epic Games** users:
 
-Before using the app, enable the API in your local `DefaultStatsAPI.ini`.
+```text
+C:\Program Files\Epic Games\rocketleague\TAGame\Config\DefaultStatsAPI.ini
+```
 
-Minimum required values:
+✏️ Then edit this file as follows and save it:
 
 ```ini
 Port=49123
 PacketSendRate=120
 ```
 
-`PacketSendRate=60` also works, but `120` is recommended for smoother updates.
+`PacketSendRate=60` also works, but `120` is recommended for a better experience.
 
-If the interface shows `WAITING...`, check your local API configuration first.
+#### 3️⃣ - Restart the Game:
 
-### Installation
+After completing all steps, restart your game.
 
-#### Option 1: Run the packaged app
+#### ⚠️ - Status Checks:
 
-1. Download the latest release build.
-2. Keep the executable and bundled asset folders in the same directory.
-3. Launch the app.
-4. Start Rocket League.
-5. Confirm that the interface shows `API Connection -> CONNECTED`.
+You can check the following statuses to make sure the program is working correctly:
 
-#### Option 2: Run from source
+🟢 `CONNECTED`: If you see this text in the **API Connection** section of the program, the process is complete.
 
-1. Install Python 3.11 or newer.
-2. Install dependencies:
+🟠 `WAITING...`: If you see this text in the **API Connection** section of the program, make sure you configured the file correctly and restarted the game. If neither helps, try closing and reopening the program.
 
-```bash
-pip install -r requirements.txt
-```
+---
 
-3. Start the app:
+### 📌 General Recommendations
 
-```bash
-python main.py
-```
+To experience the Alpha Boost sound in a better way, it is recommended that you follow these suggestions:
 
-### Build
+- Use the recommended profile, `Quality`.
+- Set the `PacketSendRate` value in the API file to `120`.
+- Check that the program volume is not low or muted in the **Windows Volume Mixer**.
+- Lower your in-game sound level so it does not overpower the **Alpha Boost** sound (recommended). Alternatively, increase the **Volume** value in the program.
+- Find the best audio levels according to your own sound setup and use them that way. For a better experience, it is recommended not to keep the **Volume** value too high.
 
-To generate a standalone executable:
+For the `Quality` profile, it is recommended to keep the **Volume** value at 50% or below.
 
-```bash
-pyinstaller AlphaBoostEngine.spec
-```
+For the `Advanced` profile, it is recommended to keep the **Volume** value at 30% or below.
 
-### Recommended Setup
-
-- Use any in-game boost visual you want.
-- Lower the in-game boost sound if you want the external Alpha Boost layer to stand out more clearly.
-- Start with `Advanced` or `Quality` if you want speed-based playback.
-- Use `Normal` if you want a simple constant profile.
-
-### Limitations
-
-- This is external audio playback, so it will never behave exactly like a native in-game item.
-- Short differences can happen during packet loss, alt-tab transitions, API interruptions, or abrupt gameplay changes.
-- The app depends on your local Stats API configuration being active and stable.
-
-### Media Placeholders
-
-Replace the placeholders below with your own links.
-
-#### Screenshots
-
-- Main interface: `[LINK]`
-- Profile selection: `[LINK]`
-- In-game example: `[LINK]`
-
-#### Videos
-
-- Main showcase: `[LINK]`
-- Advanced profile demo: `[LINK]`
-- Quality profile demo: `[LINK]`
-
-### Project Structure
-
-```text
-RL_AlphaBoost/
-|-- assets/
-|-- icon/
-|-- interface_icons/
-|-- api_client.py
-|-- audio_engine.py
-|-- interface.py
-|-- main.py
-|-- requirements.txt
-|-- AlphaBoostEngine.spec
-`-- README.md
-```
-
-Only actively used runtime files are kept in the project root. Old tools, experiments, and helper scripts are kept outside the main runtime path.
-
-### Privacy and Repository Notes
-
-- Personal configuration files such as `user_settings.json` are not tracked.
-- Local caches, logs, builds, and experimental files are ignored through `.gitignore`.
-- The repository does not include personal API credentials, account-bound secrets, or user-specific local settings.
-
-### License
+### 📄 License
 
 This project is released under the MIT License.
 
 ---
 
 <a id="turkce"></a>
-## Türkçe
+## 🇹🇷 Türkçe
 
-### Genel Bakış
+## 🎬 Ön İzleme
 
-Bu proje, Rocket League dosyalarına veya oyun sürecine müdahale etmeden Alpha Boost benzeri bir ses deneyimi sunmak için geliştirilmiş harici bir Windows masaüstü uygulamasıdır.
+Devam etmeden önce aşağıdaki videoyu ve ekran görüntüsünü inceleyerek program hakkında hızlı bir şekilde bilgi sahibi olabilirsiniz:
 
-Uygulama şu yapıyı bir araya getirir:
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/8dcaedb0-ec1b-4ab3-bb69-4ab9269747d1" width="100%" controls>
+    Your browser does not support the video tag.
+  </video>
+</p>
+<img width="413" height="410" alt="image" src="https://github.com/user-attachments/assets/6c3c7bea-6a5d-45b7-82fa-0ed67bcd0b78" />
 
-- Rocket League'in yerel Stats API'si
-- Yerel boost tuş girdisi takibi
-- Hıza göre değişen ses profilleri
 
-Bu sayede sadece tuşa basıldığını dinleyen basit sistemlere göre çok daha kararlı çalışır ve geri sayım anı, boost harcanamayan durumlar veya benzer kenar senaryolarda yanlış ses tetiklemelerini büyük ölçüde engeller.
+### ✨ Genel Bakış
 
-### Güncel Özellikler
+**Alpha Boost Engine**, oyun dosyalarını değiştirmeden ve farklı mod yöntemlerine ihtiyaç duymadan Alpha Boost ses deneyimi yaşamak isteyen oyuncular için hazırlanmış bir masaüstü uygulamasıdır.
 
-- `127.0.0.1:49123` üzerinden resmi yerel Stats API desteği
-- Yerel giriş durumu ile gerçek API boost bilgisini birleştiren daha güvenilir boost algılama
-- Çok oyunculu maçlarda daha kararlı oyuncu takibi
-- Üç farklı ses profili:
-  - `Advanced`
-  - `Quality`
-  - `Normal`
-- Arayüz üzerinde canlı API bağlantı durumu
-- Ses seviyesi kontrolü ve hızlı motor açma/kapatma desteği
-- Hafıza taraması yok, DLL inject yok, piksel kalibrasyonu yok
+Bu program gerçek Alpha Boost ögesini oyuna eklemez veya zorla açmaz. Bunun yerine harici ses dosyalarından oluşmuş sesleri kullanarak oyundaki araba hızınıza bağlı olacak şekilde değiştirerek Alpha Boost sesini oluşturur.
 
-### Nasıl Çalışır?
+---
 
-Sesin ne zaman çalacağı şu veriler birleştirilerek belirlenir:
+### 🛡️ Güvenlik
 
-- Yerel boost tuş girdisi
-- API tarafından doğrulanan gerçek boost kullanımı
-- API'den gelen anlık araç hızı
-
-Bu yaklaşım özellikle şu sorunları azaltmak için kullanılır:
-
-- Kickoff geri sayımında boost'a basınca yanlış ses çalması
-- Boost gerçekten harcanmıyorken ses tetiklenmesi
-- Hıza bağlı geçişlerin bazı anlarda kararsız davranması
-
-### Profiller
-
-| Profil | Davranış | Kaynak Klasör |
-| --- | --- | --- |
-| `Advanced` | 4 ses bandı ile hıza duyarlı oynatma, yüksek ses | `assets/sounds/alpha_boost_advanced` |
-| `Quality` | 6 ses bandı ile daha detaylı hıza duyarlı oynatma | `assets/sounds/alpha_boost_quality` |
-| `Normal` | Tüm hızlarda sabit ses | `assets/sounds/alpha_boost_normal` |
-
-#### Advanced Profil Eşlemesi
-
-| Hız | Dosya |
-| --- | --- |
-| `0-500 uu/s` | `0_gr.wav` |
-| `501-1000 uu/s` | `750_gr.wav` |
-| `1001-1500 uu/s` | `1400_gr.wav` |
-| `1501+ uu/s` | `1700_gr.wav` |
-
-#### Quality Profil Eşlemesi
-
-| Hız | Dosya |
-| --- | --- |
-| `0-300 uu/s` | `gr_level_150.wav` |
-| `301-600 uu/s` | `gr_level_450.wav` |
-| `601-900 uu/s` | `gr_level_750.wav` |
-| `901-1200 uu/s` | `gr_level_1050.wav` |
-| `1201-1500 uu/s` | `gr_level_1350.wav` |
-| `1501+ uu/s` | `gr_level_1650.wav` |
-
-### Güvenlik Notları
-
-Bu araç harici bir yardımcı uygulama olarak tasarlanmıştır.
+Bu program, oyuncuların en çok çekindiği alanlardan uzak duracak şekilde tasarlanmıştır.
 
 - Rocket League dosyalarını değiştirmez.
-- Rocket League sürecine inject etmez.
-- Rocket League hafızasını taramaz.
-- Rocket League'in kendi yerel Stats API'si ile yerel giriş durumuna dayanır.
+- Rocket League dosyalarına herhangi bir ek müdahalede bulunmaz.
+- Rocket League dosyalarını okumaz.
 
-API'yi her kullanıcının kendi bilgisayarında ayrıca etkinleştirmesi gerekir.
+⚪️ Harici bir ses uygulaması olarak çalışır. Kısacası, **Easy Anti-Cheat** sisteminden çekinen oyuncular için ideal bir çözümdür.
 
-### Rocket League Stats API Nasıl Açılır?
+---
 
-Uygulamayı kullanmadan önce kendi yerel `DefaultStatsAPI.ini` dosyanızda Stats API'yi etkinleştirin.
+### ❔ Nasıl Çalışır?
 
-Gerekli minimum değerler:
+Ses motoru temelde şu üç durumu bir araya getirir (API):
+
+- Boost basılıp basılmadığının anlık olarak takibi,
+- Boost miktarının harcanma durumunun kontrolü,
+- Araba hızının anlık olarak kontrolü,
+
+⚪️ Bu veriler harmanlanarak Alpha Boost sesinin ne zaman ve hangi tonda (hıza duyarlı olarak) çalacağı belirlenir. Bu akıllı yapı sayesinde, gol tekrarlarında veya boost miktarınız **0** iken tuşa bastığınızda sesin gereksiz yere tetiklenmesi önlenir.
+  
+---
+
+### 👥 Profiller
+
+Her profili test edip size en uygun olanı seçebilirsiniz.
+
+| Profil | Açıklama | Kısa Bilgi |
+| --- | --- | --- |
+| `Quality` | Hıza göre en detaylı tepki veren ve geçişleri daha yumuşak olan profil | En İyi Seçim |
+| `Advanced` | Hıza göre tepki veren fakat ses düzeyi daha yüksek olan profil | Daha Gür Ses |
+| `Normal` | Tüm hızlarda aynı sesi veren sabit profil | En Sade Kullanım |
+
+---
+
+### ❇️ Kurulum Aşamaları
+
+#### 1️⃣ - Programı İndir:
+
+- En güncel sürümü [buradan indirin](https://github.com/trznx/Rocket_League-Alpha_Boost/releases) ve `.exe` dosyasını masaüstünüze veya başka bir klasörün içerisine atın.
+
+- Ardından `.exe` dosyasını çalıştırın.
+
+#### 2️⃣ - API Yapılandırması:
+
+🔗 **Steam** kullanıcıları için varsayılan dosya yolu:
+
+```text
+C:\Program Files (x86)\Steam\steamapps\common\rocketleague\TAGame\Config\DefaultStatsAPI.ini
+```
+
+🔗 **Epic Games** kullanıcıları için varsayılan dosya yolu:
+
+```text
+C:\Program Files\Epic Games\rocketleague\TAGame\Config\DefaultStatsAPI.ini
+```
+
+✏️ Ardından bu dosyayı şu şekilde düzenleyin ve kaydedin:
 
 ```ini
 Port=49123
 PacketSendRate=120
 ```
 
-`PacketSendRate=60` da çalışır, ancak daha akıcı güncellemeler için `120` önerilir.
+`PacketSendRate=60` değeri için de çalışır ancak daha iyi bir deneyim için `120` önerilir.
 
-Arayüzde `WAITING...` görüyorsanız önce yerel API ayarlarınızı kontrol edin.
+#### 3️⃣ - Oyunu Yeniden Başlat:
 
-### Kurulum
+Tüm işlemleri bitirdikten sonra oyununuzu yeniden başlatın.
 
-#### Seçenek 1: Paketlenmiş uygulamayı çalıştırma
+#### ⚠️ - Durum Kontrolleri:
 
-1. En güncel release yapısını indirin.
-2. `.exe` dosyasını ve gerekli asset klasörlerini aynı dizinde tutun.
-3. Uygulamayı başlatın.
-4. Rocket League'i açın.
-5. Arayüzde `API Connection -> CONNECTED` yazdığını doğrulayın.
+Programın doğru bir şekilde çalışıp çalışmadığından emin olmak için şu durumları kontrol edebilirsiniz:
 
-#### Seçenek 2: Kaynak koddan çalıştırma
+🟢 `CONNECTED`: Programdaki **API Connection** kısmında bu yazı yazıyorsa süreç tamamlanmıştır.
 
-1. Python 3.11 veya daha yeni bir sürüm kurun.
-2. Bağımlılıkları yükleyin:
+🟠 `WAITING...`: Programdaki **API Connection** kısmında bu yazı yazıyorsa dosyayı doğru yapılandırdığınızdan ve oyunu yeniden başlattığınızdan emin olun. Her iki durum da işe yaramazsa programı kapatıp yeniden açmayı deneyin.
 
-```bash
-pip install -r requirements.txt
-```
+---
 
-3. Uygulamayı başlatın:
+### 📌 Genel Tavsiyeler
 
-```bash
-python main.py
-```
+Alpha Boost sesini daha iyi deneyimlemek için bu tavsiyelere uymanız önerilir:
 
-### Build Alma
+- Önerilen profil olan `Quality` profilini kullanın.
+- API dosyasındaki `PacketSendRate` değerini `120` olarak ayarlayın.
+- Programın ses düzeyinin **Windows Ses Karıştırıcısı** bölümünde kısık veya sessizde olmadığını kontrol edin.
+- Oyun içi ses düzeyinizi, **Alpha Boost** sesini bastırmaması için düşürün (önerilen). Alternatif olarak programdaki **Volume** değerini artırın.
+- Kendi ses seviyelerinize göre en iyi ses düzeylerini bulun ve ona göre kullanın. Daha iyi bir deneyim için **Volume** değerini yüksek tutmamanız önerilir.
 
-Tek dosyalık `.exe` üretmek için:
+`Quality` profili için **Volume** değerini %50 ve daha altında tutmanız önerilir.
 
-```bash
-pyinstaller AlphaBoostEngine.spec
-```
+`Advanced` profili için **Volume** değerini %30 ve daha altında tutmanız önerilir.
 
-### Önerilen Kullanım
-
-- İstediğiniz boost görselini kullanabilirsiniz.
-- Harici Alpha Boost sesinin daha net duyulması için oyun içi boost sesini kısabilirsiniz.
-- Hıza göre değişen oynatma istiyorsanız önce `Advanced` veya `Quality` profillerini deneyin.
-- Sabit ve daha sade bir kullanım istiyorsanız `Normal` profilini tercih edin.
-
-### Sınırlamalar
-
-- Bu sistem harici ses oynatma kullandığı için oyun içi orijinal bir item gibi birebir davranmaz.
-- Paket kaybı, alt-tab geçişleri, API kesintileri veya ani oyun içi değişimler kısa süreli farklar oluşturabilir.
-- Uygulama, yerel Stats API yapılandırmanızın aktif ve kararlı olmasına bağlıdır.
-
-### Medya Yer Tutucuları
-
-Aşağıdaki `[LINK]` alanlarını kendi bağlantılarınızla değiştirebilirsiniz.
-
-#### Ekran Görüntüleri
-
-- Ana arayüz: `[LINK]`
-- Profil seçimi: `[LINK]`
-- Oyun içi örnek: `[LINK]`
-
-#### Videolar
-
-- Genel tanıtım: `[LINK]`
-- Advanced profil demosu: `[LINK]`
-- Quality profil demosu: `[LINK]`
-
-### Proje Yapısı
-
-```text
-RL_AlphaBoost/
-|-- assets/
-|-- icon/
-|-- interface_icons/
-|-- api_client.py
-|-- audio_engine.py
-|-- interface.py
-|-- main.py
-|-- requirements.txt
-|-- AlphaBoostEngine.spec
-`-- README.md
-```
-
-Aktif olarak kullanılan çalışma dosyaları root dizinde tutulur. Eski araç script'leri, deneysel dosyalar ve yardımcı içerikler ana çalışma yolunun dışında bırakılmıştır.
-
-### Gizlilik ve Repo Notları
-
-- `user_settings.json` gibi kişisel yapılandırma dosyaları takip edilmez.
-- Yerel cache, log, build ve deneysel dosyalar `.gitignore` ile dışarıda bırakılır.
-- Repo içerisinde kişisel API anahtarı, hesap verisi veya kullanıcıya özel gizli bilgi bulunmaz.
-
-### Lisans
+### 📄 Lisans
 
 Bu proje MIT Lisansı ile sunulmaktadır.
