@@ -24,11 +24,11 @@ docs/
 testers/
 
 # Eski Profiller
-classic/
-low_rpm/
-other/
-quiet_loop/
-quiet_loop_2/
+assets/sounds/classic/
+assets/sounds/low_rpm/
+assets/sounds/other/
+assets/sounds/quiet_loop/
+assets/sounds/quiet_loop_2/
 
 # Medya / İşlenmiş Sesler
 *.mp4
